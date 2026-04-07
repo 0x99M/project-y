@@ -1,0 +1,31 @@
+{
+  "name": "electron-clipboard-manager",
+  "version": "1.0.0",
+  "description": "Clipboard history manager for Linux",
+  "author": {
+    "name": "Mustafa",
+    "email": "mustafa@clipboard-manager.local"
+  },
+  "homepage": "https://github.com/mustafa/clipboard-manager",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "build": "electron-builder --linux AppImage deb"
+  },
+  "dependencies": {
+    "electron-store": "8.2.0"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.clipboard-manager.app",
+    "productName": "Clipboard Manager",
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "assets/icon.png",
+      "category": "Utility"
+    }
+  }
+}
