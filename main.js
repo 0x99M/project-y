@@ -241,7 +241,7 @@ ipcMain.handle('toggle-expand', () => {
 function registerGlobalShortcut() {
   // Electron globalShortcut works on X11 but silently fails on Wayland.
   // On Wayland, the SIGUSR1/GNOME-shortcut approach handles it instead.
-  const shortcuts = ['Ctrl+Shift+F', 'Ctrl+Shift+B'];
+  const shortcuts = ['Ctrl+Shift+D', 'Ctrl+Shift+B'];
   for (const shortcut of shortcuts) {
     const registered = globalShortcut.register(shortcut, toggleWindow);
     if (registered) {
@@ -282,9 +282,9 @@ function registerGnomeShortcut() {
     const base = `gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:${shortcutPath}`;
     execSync(`${base} name 'Clipboard Manager Toggle'`);
     execSync(`${base} command "bash -c \\"${command}\\""`);
-    execSync(`${base} binding '<Ctrl><Shift>f'`);
+    execSync(`${base} binding '<Ctrl><Shift>d'`);
 
-    console.log('GNOME shortcut registered: Ctrl+Shift+F');
+    console.log('GNOME shortcut registered: Ctrl+Shift+D');
   } catch (err) {
     console.log('Could not register GNOME shortcut:', err.message);
   }

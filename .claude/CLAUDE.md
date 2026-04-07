@@ -9,7 +9,7 @@
 - Dark theme: bg #1e1e1e, text #f0f0f0, accent #7c6af7
 - Cap history at 200 entries, deduplicate consecutive identical entries
 - Window hides on blur, never closes (only Quit from tray menu closes app)
-- Global shortcut: Ctrl+Shift+F, fallback Ctrl+Shift+B
+- Global shortcut: Ctrl+Shift+D, fallback Ctrl+Shift+B
 - Use contextBridge + preload.js for all IPC — no nodeIntegration in renderer
 - Main process owns: clipboard polling, tray, global shortcuts, persistence
 - Renderer is pure UI only — no Node.js APIs

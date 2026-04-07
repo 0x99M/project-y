@@ -25,7 +25,7 @@ Produces `.AppImage` and `.deb` in the `dist/` directory.
 
 ## Usage
 
-- **Global shortcut**: `Ctrl+Shift+F` toggles the popup (fallback `Ctrl+Shift+B`)
+- **Global shortcut**: `Ctrl+Shift+D` toggles the popup (fallback `Ctrl+Shift+B`)
 - **Tray icon**: Right-click for Show/Hide, Clear History, Quit
 - **Search**: Type to filter text entries in real time
 - **Keyboard**: Arrow keys navigate, Enter selects, Escape closes
