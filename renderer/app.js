@@ -1,7 +1,9 @@
 let historyData = [];
+let pinnedData = [];
 let filteredData = [];
 let selectedIndex = -1;
 let searchMode = 'content';
+let activeTab = 'history';
 
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
@@ -12,15 +14,24 @@ const clearBtn = document.getElementById('clear-all');
 
 document.addEventListener('DOMContentLoaded', async () => {
   historyData = await window.clipboardManager.getHistory();
-  render(historyData);
+  pinnedData = await window.clipboardManager.getPinned();
+  render(getSourceData());
 
   window.clipboardManager.onHistoryUpdated((history) => {
-    // If user is editing a note, don't disrupt them
     if (document.activeElement && document.activeElement.classList.contains('note-input')) {
       historyData = history;
       return;
     }
     historyData = history;
+    applyFilter();
+  });
+
+  window.clipboardManager.onPinnedUpdated((pinned) => {
+    if (document.activeElement && document.activeElement.classList.contains('note-input')) {
+      pinnedData = pinned;
+      return;
+    }
+    pinnedData = pinned;
     applyFilter();
   });
 
@@ -37,10 +48,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('collapse-icon').style.display = expanded ? '' : 'none';
   });
 
+  // Tab switching
+  document.querySelectorAll('.tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      activeTab = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      selectedIndex = -1;
+      applyFilter();
+    });
+  });
+
   document.addEventListener('keydown', handleKeyDown);
 });
 
 // ─── Rendering ──────────────────────────────────────────────────────────────────
+
+function getSourceData() {
+  return activeTab === 'pinned' ? pinnedData : historyData;
+}
 
 function render(entries) {
   listEl.textContent = '';
@@ -51,6 +77,8 @@ function render(entries) {
   }
 
   emptyEl.classList.remove('visible');
+
+  const pinnedIds = new Set(pinnedData.map((e) => e.id));
 
   entries.forEach((entry, i) => {
     const row = document.createElement('div');
@@ -109,11 +137,27 @@ function render(entries) {
     });
 
     body.appendChild(noteInput);
-
     row.appendChild(body);
+
+    // Pin/unpin button
+    const isPinned = pinnedIds.has(entry.id);
+    const pinBtn = document.createElement('button');
+    pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+    pinBtn.title = isPinned ? 'Unpin' : 'Pin';
+    pinBtn.textContent = isPinned ? '\u2605' : '\u2606';
+    pinBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isPinned) {
+        window.clipboardManager.unpinEntry(entry.id);
+      } else {
+        window.clipboardManager.pinEntry(entry.id);
+      }
+    });
+    row.appendChild(pinBtn);
 
     row.addEventListener('click', (e) => {
       if (e.target.classList.contains('note-input')) return;
+      if (e.target.classList.contains('pin-btn')) return;
       selectEntry(i);
     });
 
@@ -121,9 +165,10 @@ function render(entries) {
   });
 
   // Update entry count in header
+  const sourceData = getSourceData();
   const countEl = document.getElementById('entry-count');
   if (countEl) {
-    countEl.textContent = historyData.length > 0 ? `${historyData.length} items` : '';
+    countEl.textContent = sourceData.length > 0 ? `${sourceData.length} items` : '';
   }
 }
 
@@ -142,23 +187,22 @@ function applyFilter() {
 
   if (!query) {
     filteredData = [];
-    render(historyData);
+    render(getSourceData());
   } else {
-    if (searchMode === 'notes') {
-      filteredData = historyData.filter(
-        (e) => (e.note || '').toLowerCase().includes(query)
-      );
-    } else {
-      filteredData = historyData.filter(
-        (e) => e.type === 'text' && e.content.toLowerCase().includes(query)
-      );
-    }
+    // Search across both pinned and history
+    const allEntries = [...pinnedData, ...historyData];
+    filteredData = allEntries.filter((e) => {
+      const matchContent = e.type === 'text' && e.content.toLowerCase().includes(query);
+      const matchNote = (e.note || '').toLowerCase().includes(query);
+      return searchMode === 'notes' ? matchNote : matchContent;
+    });
     render(filteredData);
   }
 }
 
 function currentEntries() {
-  return filteredData.length > 0 ? filteredData : historyData;
+  if (filteredData.length > 0) return filteredData;
+  return getSourceData();
 }
 
 function updateSearchModeIndicator() {
@@ -183,6 +227,12 @@ function handleKeyDown(e) {
       e.preventDefault();
       document.activeElement.blur();
     }
+    return;
+  }
+
+  // Auto-focus search bar when typing a printable character
+  if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && document.activeElement !== searchEl) {
+    searchEl.focus();
     return;
   }
 
@@ -212,9 +262,20 @@ function handleKeyDown(e) {
 
     case 'Tab':
       e.preventDefault();
-      searchMode = searchMode === 'content' ? 'notes' : 'content';
-      updateSearchModeIndicator();
-      applyFilter();
+      if (e.shiftKey) {
+        // Shift+Tab: switch between History and Pinned tabs
+        activeTab = activeTab === 'history' ? 'pinned' : 'history';
+        document.querySelectorAll('.tab').forEach((t) => {
+          t.classList.toggle('active', t.dataset.tab === activeTab);
+        });
+        selectedIndex = -1;
+        applyFilter();
+      } else {
+        // Tab: toggle search mode
+        searchMode = searchMode === 'content' ? 'notes' : 'content';
+        updateSearchModeIndicator();
+        applyFilter();
+      }
       break;
 
     case 'Escape':

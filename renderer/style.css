@@ -122,6 +122,40 @@ body.expanded .entry-image-preview {
   max-height: 160px;
 }
 
+/* ─── Tab bar ───────────────────────────────────────────────────────────────── */
+
+#tab-bar {
+  display: flex;
+  padding: 0 16px;
+  gap: 0;
+  background: var(--surface-headerbar);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
 /* ─── Search bar ─────────────────────────────────────────────────────────────── */
 
 #search-bar {
@@ -416,4 +450,27 @@ body.expanded .entry-image-preview {
 
 .note-input::placeholder {
   color: var(--text-muted);
+}
+
+/* ─── Pin button ────────────────────────────────────────────────────────────── */
+
+.pin-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 20px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+  transition: color 150ms ease;
+}
+
+.pin-btn:hover {
+  color: var(--accent);
+}
+
+.pin-btn.pinned {
+  color: var(--accent);
 }

@@ -21,6 +21,7 @@ const store = new Store({
   name: 'clipboard-history',
   defaults: {
     history: [],
+    pinned: [],
     firstLaunch: true,
   },
 });
@@ -30,6 +31,7 @@ const store = new Store({
 let mainWindow = null;
 let tray = null;
 let clipboardHistory = [];
+let pinnedEntries = [];
 let lastClipboardText = '';
 let lastClipboardImageB64 = '';
 let pollingInterval = null;
@@ -220,11 +222,39 @@ ipcMain.handle('hide-window', () => {
 });
 
 ipcMain.handle('update-note', (_event, { id, note }) => {
-  const entry = clipboardHistory.find((e) => e.id === id);
+  const entry = clipboardHistory.find((e) => e.id === id)
+    || pinnedEntries.find((e) => e.id === id);
   if (entry) {
     entry.note = note;
     store.set('history', clipboardHistory);
+    store.set('pinned', pinnedEntries);
   }
+});
+
+ipcMain.handle('get-pinned', () => pinnedEntries);
+
+ipcMain.handle('pin-entry', (_event, id) => {
+  const idx = clipboardHistory.findIndex((e) => e.id === id);
+  if (idx === -1) return;
+  const [entry] = clipboardHistory.splice(idx, 1);
+  if (pinnedEntries.length >= MAX_HISTORY) pinnedEntries.pop();
+  pinnedEntries.unshift(entry);
+  store.set('history', clipboardHistory);
+  store.set('pinned', pinnedEntries);
+  mainWindow?.webContents.send('history-updated', clipboardHistory);
+  mainWindow?.webContents.send('pinned-updated', pinnedEntries);
+});
+
+ipcMain.handle('unpin-entry', (_event, id) => {
+  const idx = pinnedEntries.findIndex((e) => e.id === id);
+  if (idx === -1) return;
+  const [entry] = pinnedEntries.splice(idx, 1);
+  clipboardHistory.unshift(entry);
+  if (clipboardHistory.length > MAX_HISTORY) clipboardHistory.pop();
+  store.set('history', clipboardHistory);
+  store.set('pinned', pinnedEntries);
+  mainWindow?.webContents.send('history-updated', clipboardHistory);
+  mainWindow?.webContents.send('pinned-updated', pinnedEntries);
 });
 
 let isExpanded = false;
@@ -361,11 +391,13 @@ app.whenReady().then(() => {
   // Write PID file for SIGUSR1-based toggle
   fs.writeFileSync(PID_FILE, String(process.pid));
 
-  // Load persisted history
+  // Load persisted history and pinned
   try {
     clipboardHistory = store.get('history') || [];
+    pinnedEntries = store.get('pinned') || [];
   } catch {
     clipboardHistory = [];
+    pinnedEntries = [];
   }
 
   if (clipboardHistory.length > 0) {
