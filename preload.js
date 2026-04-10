@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   getPinned: () => ipcRenderer.invoke('get-pinned'),
   pinEntry: (id) => ipcRenderer.invoke('pin-entry', id),
   unpinEntry: (id) => ipcRenderer.invoke('unpin-entry', id),
+  getStats: () => ipcRenderer.invoke('get-stats'),
   onHistoryUpdated: (callback) => {
     ipcRenderer.removeAllListeners('history-updated');
     ipcRenderer.on('history-updated', (_event, history) => callback(history));

@@ -4,6 +4,7 @@ let filteredData = [];
 let selectedIndex = -1;
 let searchMode = 'content';
 let activeTab = 'history';
+let settingsOpen = false;
 
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
@@ -57,6 +58,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       selectedIndex = -1;
       applyFilter();
     });
+  });
+
+  document.getElementById('settings-btn').addEventListener('click', async () => {
+    settingsOpen = !settingsOpen;
+    const settingsView = document.getElementById('settings-view');
+    const tabBar = document.getElementById('tab-bar');
+    const searchBar = document.getElementById('search-bar');
+    const footer = document.getElementById('footer');
+
+    if (settingsOpen) {
+      listEl.style.display = 'none';
+      emptyEl.style.display = 'none';
+      tabBar.style.display = 'none';
+      searchBar.style.display = 'none';
+      footer.style.display = 'none';
+      settingsView.style.display = '';
+      await renderStats();
+    } else {
+      settingsView.style.display = 'none';
+      listEl.style.display = '';
+      tabBar.style.display = '';
+      searchBar.style.display = '';
+      footer.style.display = '';
+      applyFilter();
+    }
   });
 
   document.addEventListener('keydown', handleKeyDown);
@@ -179,6 +205,40 @@ async function selectEntry(index) {
   await window.clipboardManager.hideWindow();
 }
 
+// ─── Settings ───────────────────────────────────────────────────────────────────
+
+async function renderStats() {
+  const stats = await window.clipboardManager.getStats();
+  const el = document.getElementById('stats-content');
+  const size = stats.totalBytes < 1024 * 1024
+    ? (stats.totalBytes / 1024).toFixed(1) + ' KB'
+    : (stats.totalBytes / (1024 * 1024)).toFixed(1) + ' MB';
+
+  el.textContent = '';
+  const rows = [
+    ['History entries', stats.historyTotal],
+    ['Text entries', stats.historyTexts],
+    ['Image entries', stats.historyImages],
+    ['Notes (history)', stats.historyNotes],
+    ['Pinned entries', stats.pinnedCount],
+    ['Notes (pinned)', stats.pinnedNotes],
+    ['Storage used', size],
+  ];
+  rows.forEach(([label, value]) => {
+    const row = document.createElement('div');
+    row.className = 'settings-row';
+    const labelEl = document.createElement('span');
+    labelEl.className = 'settings-label';
+    labelEl.textContent = label;
+    const valueEl = document.createElement('span');
+    valueEl.className = 'settings-value';
+    valueEl.textContent = value;
+    row.appendChild(labelEl);
+    row.appendChild(valueEl);
+    el.appendChild(row);
+  });
+}
+
 // ─── Search ─────────────────────────────────────────────────────────────────────
 
 function applyFilter() {
@@ -221,6 +281,15 @@ function updateSearchModeIndicator() {
 // ─── Keyboard navigation ────────────────────────────────────────────────────────
 
 function handleKeyDown(e) {
+  // In settings, only Escape closes it
+  if (settingsOpen) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      document.getElementById('settings-btn').click();
+    }
+    return;
+  }
+
   // Don't intercept keys when typing in the note input
   if (document.activeElement && document.activeElement.classList.contains('note-input')) {
     if (e.key === 'Escape') {

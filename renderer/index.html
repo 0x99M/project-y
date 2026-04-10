@@ -12,6 +12,12 @@
       <span id="title">Clipboard</span>
       <span id="header-right">
         <span id="entry-count"></span>
+        <button id="settings-btn" title="Settings">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
         <button id="expand-btn" title="Expand window">
           <svg id="expand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 3 21 3 21 9"></polyline>
@@ -50,6 +56,24 @@
       </div>
       <p>Nothing copied yet</p>
       <p class="empty-hint">Copy something to get started</p>
+    </div>
+    <div id="settings-view" style="display:none">
+      <div class="settings-section">
+        <h3 class="settings-title">Keyboard Shortcuts</h3>
+        <div class="settings-row"><span class="settings-label">Toggle window</span><kbd class="settings-key">Ctrl+Shift+D</kbd></div>
+        <div class="settings-row"><span class="settings-label">Navigate entries</span><kbd class="settings-key">&uarr; &darr;</kbd></div>
+        <div class="settings-row"><span class="settings-label">Select entry</span><kbd class="settings-key">Enter</kbd></div>
+        <div class="settings-row"><span class="settings-label">Close window</span><kbd class="settings-key">Esc</kbd></div>
+        <div class="settings-row"><span class="settings-label">Search mode</span><kbd class="settings-key">Tab</kbd></div>
+        <div class="settings-row"><span class="settings-label">Switch tabs</span><kbd class="settings-key">Shift+Tab</kbd></div>
+      </div>
+      <div class="settings-section">
+        <h3 class="settings-title">Statistics</h3>
+        <div id="stats-content"></div>
+      </div>
+      <div class="settings-section settings-about">
+        <span class="settings-label">Clipboard Manager v1.0.0</span>
+      </div>
     </div>
     <div id="footer">
       <span id="footer-hint">&#8593;&#8595; navigate &middot; &#8629; select &middot; esc close</span>

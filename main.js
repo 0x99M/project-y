@@ -257,6 +257,28 @@ ipcMain.handle('unpin-entry', (_event, id) => {
   mainWindow?.webContents.send('pinned-updated', pinnedEntries);
 });
 
+ipcMain.handle('get-stats', () => {
+  const historyTexts = clipboardHistory.filter((e) => e.type === 'text').length;
+  const historyImages = clipboardHistory.filter((e) => e.type === 'image').length;
+  const historyNotes = clipboardHistory.filter((e) => e.note).length;
+  const pinnedCount = pinnedEntries.length;
+  const pinnedNotes = pinnedEntries.filter((e) => e.note).length;
+
+  const historyJson = JSON.stringify(clipboardHistory);
+  const pinnedJson = JSON.stringify(pinnedEntries);
+  const totalBytes = Buffer.byteLength(historyJson) + Buffer.byteLength(pinnedJson);
+
+  return {
+    historyTotal: clipboardHistory.length,
+    historyTexts,
+    historyImages,
+    historyNotes,
+    pinnedCount,
+    pinnedNotes,
+    totalBytes,
+  };
+});
+
 let isExpanded = false;
 ipcMain.handle('toggle-expand', () => {
   if (!mainWindow) return isExpanded;

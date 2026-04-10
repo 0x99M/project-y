@@ -361,20 +361,24 @@ body.expanded .entry-image-preview {
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
 
-#history-list::-webkit-scrollbar {
+#history-list::-webkit-scrollbar,
+#settings-view::-webkit-scrollbar {
   width: 6px;
 }
 
-#history-list::-webkit-scrollbar-track {
+#history-list::-webkit-scrollbar-track,
+#settings-view::-webkit-scrollbar-track {
   background: transparent;
 }
 
-#history-list::-webkit-scrollbar-thumb {
+#history-list::-webkit-scrollbar-thumb,
+#settings-view::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 3px;
 }
 
-#history-list::-webkit-scrollbar-thumb:hover {
+#history-list::-webkit-scrollbar-thumb:hover,
+#settings-view::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.20);
 }
 
@@ -473,4 +477,82 @@ body.expanded .entry-image-preview {
 
 .pin-btn.pinned {
   color: var(--accent);
+}
+
+/* ─── Settings button ───────────────────────────────────────────────────────── */
+
+#settings-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 150ms ease;
+}
+
+#settings-btn:hover {
+  color: var(--accent);
+}
+
+/* ─── Settings view ─────────────────────────────────────────────────────────── */
+
+#settings-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.settings-label {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.settings-value {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.settings-key {
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--surface-raised);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-default);
+}
+
+.settings-about {
+  text-align: center;
+  padding-top: 10px;
+}
+
+.settings-about .settings-label {
+  color: var(--text-muted);
+  font-size: 11px;
 }
