@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   setTheme: (theme) => ipcRenderer.invoke('set-theme', theme),
   getAccent: () => ipcRenderer.invoke('get-accent'),
   setAccent: (color) => ipcRenderer.invoke('set-accent', color),
+  getShortcut: () => ipcRenderer.invoke('get-shortcut'),
+  setShortcut: (shortcut) => ipcRenderer.invoke('set-shortcut', shortcut),
   onHistoryUpdated: (callback) => {
     ipcRenderer.removeAllListeners('history-updated');
     ipcRenderer.on('history-updated', (_event, history) => callback(history));

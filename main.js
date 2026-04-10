@@ -24,6 +24,7 @@ const store = new Store({
     pinned: [],
     theme: 'dark',
     accentColor: '#E95420',
+    shortcut: 'Ctrl+Shift+D',
     firstLaunch: true,
   },
 });
@@ -293,6 +294,15 @@ ipcMain.handle('set-accent', (_event, color) => {
   store.set('accentColor', color);
 });
 
+ipcMain.handle('get-shortcut', () => store.get('shortcut') || 'Ctrl+Shift+D');
+
+ipcMain.handle('set-shortcut', (_event, shortcut) => {
+  globalShortcut.unregisterAll();
+  store.set('shortcut', shortcut);
+  registerGlobalShortcut();
+  registerGnomeShortcut();
+});
+
 let isExpanded = false;
 ipcMain.handle('toggle-expand', () => {
   if (!mainWindow) return isExpanded;
@@ -316,14 +326,23 @@ ipcMain.handle('toggle-expand', () => {
 function registerGlobalShortcut() {
   // Electron globalShortcut works on X11 but silently fails on Wayland.
   // On Wayland, the SIGUSR1/GNOME-shortcut approach handles it instead.
-  const shortcuts = ['Ctrl+Shift+D', 'Ctrl+Shift+B'];
-  for (const shortcut of shortcuts) {
-    const registered = globalShortcut.register(shortcut, toggleWindow);
-    if (registered) {
-      console.log(`Global shortcut registered: ${shortcut}`);
-      return;
-    }
+  const shortcut = store.get('shortcut') || 'Ctrl+Shift+D';
+  const registered = globalShortcut.register(shortcut, toggleWindow);
+  if (registered) {
+    console.log(`Global shortcut registered: ${shortcut}`);
+  } else {
+    console.log(`Failed to register shortcut: ${shortcut}`);
   }
+}
+
+function toGnomeBinding(shortcut) {
+  return shortcut
+    .split('+')
+    .map((part, i, arr) => {
+      if (i === arr.length - 1) return part.toLowerCase();
+      return `<${part}>`;
+    })
+    .join('');
 }
 
 // Register a GNOME custom keyboard shortcut.
@@ -357,9 +376,10 @@ function registerGnomeShortcut() {
     const base = `gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:${shortcutPath}`;
     execSync(`${base} name 'Clipboard Manager Toggle'`);
     execSync(`${base} command "bash -c \\"${command}\\""`);
-    execSync(`${base} binding '<Ctrl><Shift>d'`);
+    const binding = toGnomeBinding(store.get('shortcut') || 'Ctrl+Shift+D');
+    execSync(`${base} binding '${binding}'`);
 
-    console.log('GNOME shortcut registered: Ctrl+Shift+D');
+    console.log(`GNOME shortcut registered: ${store.get('shortcut') || 'Ctrl+Shift+D'}`);
   } catch (err) {
     console.log('Could not register GNOME shortcut:', err.message);
   }

@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyTheme(savedTheme);
   const savedAccent = await window.clipboardManager.getAccent();
   applyAccent(savedAccent);
+  const savedShortcut = await window.clipboardManager.getShortcut();
+  document.getElementById('shortcut-recorder').textContent = savedShortcut;
 
   historyData = await window.clipboardManager.getHistory();
   pinnedData = await window.clipboardManager.getPinned();
@@ -99,6 +101,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.clipboardManager.setAccent(accentPicker.value);
   });
 
+  // Shortcut recorder
+  const recorder = document.getElementById('shortcut-recorder');
+  let recording = false;
+
+  recorder.addEventListener('click', () => {
+    recording = !recording;
+    if (recording) {
+      recorder.textContent = 'Press shortcut...';
+      recorder.classList.add('recording');
+    } else {
+      recorder.classList.remove('recording');
+      window.clipboardManager.getShortcut().then((s) => { recorder.textContent = s; });
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!recording) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.key === 'Escape') {
+      recording = false;
+      recorder.classList.remove('recording');
+      window.clipboardManager.getShortcut().then((s) => { recorder.textContent = s; });
+      return;
+    }
+
+    // Ignore modifier-only presses
+    if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return;
+
+    // Require at least one modifier
+    if (!e.ctrlKey && !e.shiftKey && !e.altKey) return;
+
+    const parts = [];
+    if (e.ctrlKey) parts.push('Ctrl');
+    if (e.shiftKey) parts.push('Shift');
+    if (e.altKey) parts.push('Alt');
+
+    // Map key to Electron accelerator name
+    let key = e.key;
+    if (key.length === 1) {
+      key = key.toUpperCase();
+    } else if (key === ' ') {
+      key = 'Space';
+    }
+    parts.push(key);
+
+    const accelerator = parts.join('+');
+    recorder.textContent = accelerator;
+    recorder.classList.remove('recording');
+    recording = false;
+    window.clipboardManager.setShortcut(accelerator);
+  }, true);
+
   // Theme toggle
   document.querySelectorAll('.theme-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -115,8 +171,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyTheme('dark');
     applyAccent('#E95420');
     accentPicker.value = '#E95420';
+    recorder.textContent = 'Ctrl+Shift+D';
     window.clipboardManager.setTheme('dark');
     window.clipboardManager.setAccent('#E95420');
+    window.clipboardManager.setShortcut('Ctrl+Shift+D');
   });
 
   document.addEventListener('keydown', handleKeyDown);

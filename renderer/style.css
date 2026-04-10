@@ -631,6 +631,21 @@ body.expanded .entry-image-preview {
   color: #fff;
 }
 
+.shortcut-recorder {
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.shortcut-recorder:hover {
+  border-color: var(--accent);
+}
+
+.shortcut-recorder.recording {
+  border-color: var(--accent);
+  background: var(--accent-muted);
+  color: var(--accent);
+}
+
 #accent-picker {
   width: 32px;
   height: 24px;
