@@ -59,6 +59,20 @@
     </div>
     <div id="settings-view" style="display:none">
       <div class="settings-section">
+        <h3 class="settings-title">Appearance</h3>
+        <div class="settings-row">
+          <span class="settings-label">Theme</span>
+          <div id="theme-toggle">
+            <button class="theme-btn active" data-theme="dark">Dark</button>
+            <button class="theme-btn" data-theme="light">Light</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Accent color</span>
+          <input type="color" id="accent-picker" value="#E95420">
+        </div>
+      </div>
+      <div class="settings-section">
         <h3 class="settings-title">Keyboard Shortcuts</h3>
         <div class="settings-row"><span class="settings-label">Toggle window</span><kbd class="settings-key">Ctrl+Shift+D</kbd></div>
         <div class="settings-row"><span class="settings-label">Navigate entries</span><kbd class="settings-key">&uarr; &darr;</kbd></div>
@@ -73,6 +87,7 @@
       </div>
       <div class="settings-section settings-about">
         <span class="settings-label">Clipboard Manager v1.0.0</span>
+        <button id="reset-settings-btn">Reset to defaults</button>
       </div>
     </div>
     <div id="footer">

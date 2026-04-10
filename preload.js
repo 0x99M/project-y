@@ -11,6 +11,10 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   pinEntry: (id) => ipcRenderer.invoke('pin-entry', id),
   unpinEntry: (id) => ipcRenderer.invoke('unpin-entry', id),
   getStats: () => ipcRenderer.invoke('get-stats'),
+  getTheme: () => ipcRenderer.invoke('get-theme'),
+  setTheme: (theme) => ipcRenderer.invoke('set-theme', theme),
+  getAccent: () => ipcRenderer.invoke('get-accent'),
+  setAccent: (color) => ipcRenderer.invoke('set-accent', color),
   onHistoryUpdated: (callback) => {
     ipcRenderer.removeAllListeners('history-updated');
     ipcRenderer.on('history-updated', (_event, history) => callback(history));

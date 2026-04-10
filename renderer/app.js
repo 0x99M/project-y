@@ -14,6 +14,12 @@ const clearBtn = document.getElementById('clear-all');
 // ─── Init ───────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Load theme and accent
+  const savedTheme = await window.clipboardManager.getTheme();
+  applyTheme(savedTheme);
+  const savedAccent = await window.clipboardManager.getAccent();
+  applyAccent(savedAccent);
+
   historyData = await window.clipboardManager.getHistory();
   pinnedData = await window.clipboardManager.getPinned();
   render(getSourceData());
@@ -85,8 +91,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Accent color picker
+  const accentPicker = document.getElementById('accent-picker');
+  accentPicker.value = savedAccent;
+  accentPicker.addEventListener('input', () => {
+    applyAccent(accentPicker.value);
+    window.clipboardManager.setAccent(accentPicker.value);
+  });
+
+  // Theme toggle
+  document.querySelectorAll('.theme-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const theme = btn.dataset.theme;
+      applyTheme(theme);
+      window.clipboardManager.setTheme(theme);
+      document.querySelectorAll('.theme-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Reset settings
+  document.getElementById('reset-settings-btn').addEventListener('click', () => {
+    applyTheme('dark');
+    applyAccent('#E95420');
+    accentPicker.value = '#E95420';
+    window.clipboardManager.setTheme('dark');
+    window.clipboardManager.setAccent('#E95420');
+  });
+
   document.addEventListener('keydown', handleKeyDown);
 });
+
+// ─── Theme ──────────────────────────────────────────────────────────────────────
+
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.body.classList.add('theme-light');
+  } else {
+    document.body.classList.remove('theme-light');
+  }
+  // Update toggle button states
+  document.querySelectorAll('.theme-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.theme === theme);
+  });
+}
+
+function applyAccent(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  // Darken for hover
+  const hoverR = Math.max(0, Math.round(r * 0.8));
+  const hoverG = Math.max(0, Math.round(g * 0.8));
+  const hoverB = Math.max(0, Math.round(b * 0.8));
+
+  document.documentElement.style.setProperty('--accent', hex);
+  document.documentElement.style.setProperty('--accent-hover', `rgb(${hoverR}, ${hoverG}, ${hoverB})`);
+  document.documentElement.style.setProperty('--accent-muted', `rgba(${r}, ${g}, ${b}, 0.20)`);
+}
 
 // ─── Rendering ──────────────────────────────────────────────────────────────────
 

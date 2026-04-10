@@ -22,6 +22,8 @@ const store = new Store({
   defaults: {
     history: [],
     pinned: [],
+    theme: 'dark',
+    accentColor: '#E95420',
     firstLaunch: true,
   },
 });
@@ -277,6 +279,18 @@ ipcMain.handle('get-stats', () => {
     pinnedNotes,
     totalBytes,
   };
+});
+
+ipcMain.handle('get-theme', () => store.get('theme') || 'dark');
+
+ipcMain.handle('set-theme', (_event, theme) => {
+  store.set('theme', theme);
+});
+
+ipcMain.handle('get-accent', () => store.get('accentColor') || '#E95420');
+
+ipcMain.handle('set-accent', (_event, color) => {
+  store.set('accentColor', color);
 });
 
 let isExpanded = false;

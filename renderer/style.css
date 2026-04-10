@@ -22,6 +22,30 @@
   --border-input: rgba(255, 255, 255, 0.15);
 }
 
+body.theme-light {
+  /* Accent */
+  --accent: #E95420;
+  --accent-hover: #C34113;
+  --accent-muted: rgba(233, 84, 32, 0.12);
+
+  /* Surfaces */
+  --surface-base: #FFFFFF;
+  --surface-headerbar: #F5F5F5;
+  --surface-raised: #EBEBEB;
+  --surface-input: #F0F0F0;
+  --surface-popover: #FAFAFA;
+
+  /* Text */
+  --text-primary: #1a1a1a;
+  --text-secondary: #5c5c5c;
+  --text-muted: #999999;
+
+  /* Borders */
+  --border-default: rgba(0, 0, 0, 0.12);
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-input: rgba(0, 0, 0, 0.18);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -62,7 +86,7 @@ body {
   height: 48px;
   padding: 0 16px;
   background: var(--surface-headerbar);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-default);
   border-radius: 10px 10px 0 0;
   flex-shrink: 0;
   -webkit-app-region: drag;
@@ -92,7 +116,7 @@ body {
   height: 14px;
   padding: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--border-input);
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
@@ -190,7 +214,7 @@ body.expanded .entry-image-preview {
 
 #search:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(233, 84, 32, 0.25);
+  box-shadow: 0 0 0 2px var(--accent-muted);
 }
 
 #search::placeholder {
@@ -223,7 +247,7 @@ body.expanded .entry-image-preview {
 }
 
 .history-entry:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--border-subtle);
 }
 
 .history-entry.selected {
@@ -246,7 +270,7 @@ body.expanded .entry-image-preview {
 }
 
 .badge-text {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--border-default);
   color: var(--text-secondary);
 }
 
@@ -373,13 +397,13 @@ body.expanded .entry-image-preview {
 
 #history-list::-webkit-scrollbar-thumb,
 #settings-view::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--border-default);
   border-radius: 3px;
 }
 
 #history-list::-webkit-scrollbar-thumb:hover,
 #settings-view::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.20);
+  background: var(--border-input);
 }
 
 /* ─── Search mode badge ─────────────────────────────────────────────────────── */
@@ -405,7 +429,7 @@ body.expanded .entry-image-preview {
   font-family: inherit;
   font-size: 9px;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--border-default);
   padding: 1px 4px;
   border-radius: 3px;
   margin-left: 4px;
@@ -448,7 +472,7 @@ body.expanded .entry-image-preview {
 .note-input:focus {
   background: var(--surface-input);
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(233, 84, 32, 0.25);
+  box-shadow: 0 0 0 2px var(--accent-muted);
   color: var(--text-primary);
 }
 
@@ -555,4 +579,73 @@ body.expanded .entry-image-preview {
 .settings-about .settings-label {
   color: var(--text-muted);
   font-size: 11px;
+}
+
+#reset-settings-btn {
+  display: block;
+  margin: 12px auto 0;
+  padding: 6px 16px;
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+#reset-settings-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ─── Theme toggle ──────────────────────────────────────────────────────────── */
+
+#theme-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.theme-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.theme-btn:hover {
+  color: var(--text-primary);
+}
+
+.theme-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+#accent-picker {
+  width: 32px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+#accent-picker::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+#accent-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px;
 }
