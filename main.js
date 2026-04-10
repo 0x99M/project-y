@@ -175,6 +175,7 @@ function addEntry(type, content, preview) {
     content,
     preview,
     timestamp: Date.now(),
+    note: '',
   };
 
   clipboardHistory.unshift(entry);
@@ -216,6 +217,14 @@ ipcMain.handle('clear-history', () => {
 
 ipcMain.handle('hide-window', () => {
   if (mainWindow) mainWindow.hide();
+});
+
+ipcMain.handle('update-note', (_event, { id, note }) => {
+  const entry = clipboardHistory.find((e) => e.id === id);
+  if (entry) {
+    entry.note = note;
+    store.set('history', clipboardHistory);
+  }
 });
 
 let isExpanded = false;

@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   copyToClipboard: (entry) => ipcRenderer.invoke('copy-to-clipboard', entry),
   clearHistory: () => ipcRenderer.invoke('clear-history'),
   hideWindow: () => ipcRenderer.invoke('hide-window'),
+  updateNote: ({ id, note }) => ipcRenderer.invoke('update-note', { id, note }),
   toggleExpand: () => ipcRenderer.invoke('toggle-expand'),
   onHistoryUpdated: (callback) => {
     ipcRenderer.removeAllListeners('history-updated');

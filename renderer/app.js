@@ -1,6 +1,7 @@
 let historyData = [];
 let filteredData = [];
 let selectedIndex = -1;
+let searchMode = 'content';
 
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
@@ -14,6 +15,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   render(historyData);
 
   window.clipboardManager.onHistoryUpdated((history) => {
+    // If user is editing a note, don't disrupt them
+    if (document.activeElement && document.activeElement.classList.contains('note-input')) {
+      historyData = history;
+      return;
+    }
     historyData = history;
     applyFilter();
   });
@@ -81,8 +87,36 @@ function render(entries) {
     time.textContent = timeAgo(entry.timestamp);
     body.appendChild(time);
 
+    // Note input (always visible)
+    const noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.className = 'note-input';
+    noteInput.placeholder = 'Add a note...';
+    noteInput.maxLength = 500;
+    noteInput.value = entry.note || '';
+
+    const saveNote = debounce((value) => {
+      window.clipboardManager.updateNote({ id: entry.id, note: value });
+    }, 300);
+
+    noteInput.addEventListener('input', () => {
+      entry.note = noteInput.value;
+      saveNote(noteInput.value);
+    });
+
+    noteInput.addEventListener('blur', () => {
+      window.clipboardManager.updateNote({ id: entry.id, note: noteInput.value });
+    });
+
+    body.appendChild(noteInput);
+
     row.appendChild(body);
-    row.addEventListener('click', () => selectEntry(i));
+
+    row.addEventListener('click', (e) => {
+      if (e.target.classList.contains('note-input')) return;
+      selectEntry(i);
+    });
+
     listEl.appendChild(row);
   });
 
@@ -110,9 +144,15 @@ function applyFilter() {
     filteredData = [];
     render(historyData);
   } else {
-    filteredData = historyData.filter(
-      (e) => e.type === 'text' && e.content.toLowerCase().includes(query)
-    );
+    if (searchMode === 'notes') {
+      filteredData = historyData.filter(
+        (e) => (e.note || '').toLowerCase().includes(query)
+      );
+    } else {
+      filteredData = historyData.filter(
+        (e) => e.type === 'text' && e.content.toLowerCase().includes(query)
+      );
+    }
     render(filteredData);
   }
 }
@@ -121,9 +161,31 @@ function currentEntries() {
   return filteredData.length > 0 ? filteredData : historyData;
 }
 
+function updateSearchModeIndicator() {
+  const badge = document.getElementById('search-mode-badge');
+  if (searchMode === 'notes') {
+    searchEl.placeholder = 'Search notes...';
+    badge.innerHTML = 'notes <kbd>tab</kbd>';
+    badge.classList.add('active');
+  } else {
+    searchEl.placeholder = 'Search...';
+    badge.innerHTML = 'content <kbd>tab</kbd>';
+    badge.classList.remove('active');
+  }
+}
+
 // ─── Keyboard navigation ────────────────────────────────────────────────────────
 
 function handleKeyDown(e) {
+  // Don't intercept keys when typing in the note input
+  if (document.activeElement && document.activeElement.classList.contains('note-input')) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      document.activeElement.blur();
+    }
+    return;
+  }
+
   const entries = currentEntries();
 
   switch (e.key) {
@@ -146,6 +208,13 @@ function handleKeyDown(e) {
         e.preventDefault();
         selectEntry(selectedIndex);
       }
+      break;
+
+    case 'Tab':
+      e.preventDefault();
+      searchMode = searchMode === 'content' ? 'notes' : 'content';
+      updateSearchModeIndicator();
+      applyFilter();
       break;
 
     case 'Escape':
@@ -172,4 +241,12 @@ function timeAgo(timestamp) {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
+}
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
 }
