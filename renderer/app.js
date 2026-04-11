@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyAccent(savedAccent);
   const savedShortcut = await window.clipboardManager.getShortcut();
   document.getElementById('shortcut-recorder').textContent = savedShortcut;
+  const autostartToggle = document.getElementById('autostart-toggle');
+  autostartToggle.checked = await window.clipboardManager.getAutostart();
   const autoPasteToggle = document.getElementById('auto-paste-toggle');
   autoPasteToggle.checked = await window.clipboardManager.getAutoPaste();
   const autoScrollToggle = document.getElementById('auto-scroll-toggle');
@@ -143,6 +145,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.clipboardManager.setFontSize(size);
   });
 
+  // Autostart toggle
+  autostartToggle.addEventListener('change', () => {
+    window.clipboardManager.setAutostart(autostartToggle.checked);
+  });
+
   // Auto-paste toggle
   autoPasteToggle.addEventListener('change', async () => {
     const result = await window.clipboardManager.setAutoPaste(autoPasteToggle.checked);
@@ -257,6 +264,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyAccent('#E95420');
     accentPicker.value = '#E95420';
     recorder.textContent = 'Ctrl+Shift+D';
+    autostartToggle.checked = false;
+    window.clipboardManager.setAutostart(false);
     autoPasteToggle.checked = false;
     autoScrollToggle.checked = true;
     autoClearSearchToggle.checked = true;

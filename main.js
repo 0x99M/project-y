@@ -431,53 +431,47 @@ process.on('SIGUSR1', () => {
 
 // ─── Autostart ──────────────────────────────────────────────────────────────────
 
-async function checkAutostart() {
-  if (!store.get('firstLaunch')) return;
-  store.set('firstLaunch', false);
-
-  const { response } = await dialog.showMessageBox({
-    type: 'question',
-    buttons: ['Yes', 'No'],
-    defaultId: 0,
-    title: 'Autostart',
-    message: 'Would you like Clipmer to start automatically on login?',
-  });
-
-  if (response === 0) {
-    writeAutostartDesktopFile();
-  }
+function isAutostartEnabled() {
+  const os = require('os');
+  const desktopFile = path.join(os.homedir(), '.config', 'autostart', 'clipmer.desktop');
+  return fs.existsSync(desktopFile);
 }
 
-function writeAutostartDesktopFile() {
+function setAutostart(enabled) {
   const os = require('os');
   const autostartDir = path.join(os.homedir(), '.config', 'autostart');
+  const desktopFile = path.join(autostartDir, 'clipmer.desktop');
 
-  if (!fs.existsSync(autostartDir)) {
-    fs.mkdirSync(autostartDir, { recursive: true });
+  if (enabled) {
+    if (!fs.existsSync(autostartDir)) {
+      fs.mkdirSync(autostartDir, { recursive: true });
+    }
+
+    const execPath = app.isPackaged
+      ? process.execPath
+      : `${process.execPath} "${app.getAppPath()}"`;
+
+    const desktopEntry = [
+      '[Desktop Entry]',
+      'Type=Application',
+      'Name=Clipmer',
+      `Exec=${execPath}`,
+      `Icon=${path.join(__dirname, 'assets', 'icon.png')}`,
+      'Comment=Clipboard History Manager',
+      'Categories=Utility;',
+      'Terminal=false',
+      'StartupNotify=false',
+      'X-GNOME-Autostart-enabled=true',
+    ].join('\n') + '\n';
+
+    fs.writeFileSync(desktopFile, desktopEntry);
+  } else {
+    try { fs.unlinkSync(desktopFile); } catch {}
   }
-
-  const execPath = app.isPackaged
-    ? process.execPath
-    : `${process.execPath} "${app.getAppPath()}"`;
-
-  const desktopEntry = [
-    '[Desktop Entry]',
-    'Type=Application',
-    'Name=Clipmer',
-    `Exec=${execPath}`,
-    `Icon=${path.join(__dirname, 'assets', 'icon.png')}`,
-    'Comment=Clipboard History Manager',
-    'Categories=Utility;',
-    'Terminal=false',
-    'StartupNotify=false',
-    'X-GNOME-Autostart-enabled=true',
-  ].join('\n') + '\n';
-
-  fs.writeFileSync(
-    path.join(autostartDir, 'clipmer.desktop'),
-    desktopEntry
-  );
 }
+
+ipcMain.handle('get-autostart', () => isAutostartEnabled());
+ipcMain.handle('set-autostart', (_event, enabled) => setAutostart(enabled));
 
 // ─── Paste extension ────────────────────────────────────────────────────────────
 
@@ -564,7 +558,6 @@ app.whenReady().then(() => {
   registerGnomeShortcut();
   if (store.get('autoPaste')) installPasteExtension();
   startClipboardPolling();
-  checkAutostart();
 });
 
 app.on('will-quit', () => {
