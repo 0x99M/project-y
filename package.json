@@ -1,12 +1,12 @@
 {
-  "name": "electron-clipboard-manager",
-  "version": "1.0.0",
+  "name": "clipmer",
+  "version": "2.0.0",
   "description": "Clipboard history manager for Linux",
   "author": {
     "name": "Mustafa",
-    "email": "mustafa@clipboard-manager.local"
+    "email": "mustafa@clipmer.local"
   },
-  "homepage": "https://github.com/mustafa/clipboard-manager",
+  "homepage": "https://github.com/mustafa/clipmer",
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
@@ -20,8 +20,8 @@
     "electron-builder": "^26.0.0"
   },
   "build": {
-    "appId": "com.clipboard-manager.app",
-    "productName": "Clipboard Manager",
+    "appId": "com.clipmer.app",
+    "productName": "Clipmer",
     "linux": {
       "target": ["AppImage", "deb"],
       "icon": "assets/icons/",

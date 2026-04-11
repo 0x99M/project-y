@@ -18,7 +18,7 @@ const Store = require('electron-store');
 // ─── Persistence ────────────────────────────────────────────────────────────────
 
 const store = new Store({
-  name: 'clipboard-history',
+  name: 'clipmer-data',
   defaults: {
     history: [],
     pinned: [],
@@ -47,7 +47,7 @@ let pollingInterval = null;
 const MAX_HISTORY = 200;
 const POLL_MS = 500;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const PID_FILE = path.join(app.getPath('userData'), 'clipboard-manager.pid');
+const PID_FILE = path.join(app.getPath('userData'), 'clipmer.pid');
 
 // ─── Single instance lock ───────────────────────────────────────────────────────
 
@@ -127,7 +127,7 @@ function createTray() {
   }
 
   tray = new Tray(icon);
-  tray.setToolTip('Clipboard Manager');
+  tray.setToolTip('Clipmer');
 
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Show/Hide', click: () => toggleWindow() },
@@ -237,11 +237,11 @@ ipcMain.handle('simulate-paste', () => {
   setTimeout(() => {
     const { exec } = require('child_process');
     exec(
-      'gdbus call --session --dest com.clipboard.manager.PasteHelper ' +
-      '--object-path /com/clipboard/manager/PasteHelper ' +
-      '--method com.clipboard.manager.PasteHelper.Paste',
+      'gdbus call --session --dest com.clipmer.PasteHelper ' +
+      '--object-path /com/clipmer/PasteHelper ' +
+      '--method com.clipmer.PasteHelper.Paste',
       (err) => {
-        if (err) console.log('Auto-paste unavailable. Enable the Clipboard Manager Paste Helper extension.');
+        if (err) console.log('Auto-paste unavailable. Enable the Clipmer Paste Helper extension.');
       }
     );
   }, 150);
@@ -372,7 +372,7 @@ function toGnomeBinding(shortcut) {
 // It runs our app binary; the single-instance lock sends SIGUSR1 to toggle.
 function registerGnomeShortcut() {
   const { execSync } = require('child_process');
-  const shortcutName = 'clipboard-manager-toggle';
+  const shortcutName = 'clipmer-toggle';
   const shortcutPath = `/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/${shortcutName}/`;
 
   // Build a command that sends SIGUSR1 to the running process
@@ -397,7 +397,7 @@ function registerGnomeShortcut() {
     }
 
     const base = `gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:${shortcutPath}`;
-    execSync(`${base} name 'Clipboard Manager Toggle'`);
+    execSync(`${base} name 'Clipmer Toggle'`);
     execSync(`${base} command "bash -c \\"${command}\\""`);
     const binding = toGnomeBinding(store.get('shortcut') || 'Ctrl+Shift+D');
     execSync(`${base} binding '${binding}'`);
@@ -425,7 +425,7 @@ async function checkAutostart() {
     buttons: ['Yes', 'No'],
     defaultId: 0,
     title: 'Autostart',
-    message: 'Would you like Clipboard Manager to start automatically on login?',
+    message: 'Would you like Clipmer to start automatically on login?',
   });
 
   if (response === 0) {
@@ -448,7 +448,7 @@ function writeAutostartDesktopFile() {
   const desktopEntry = [
     '[Desktop Entry]',
     'Type=Application',
-    'Name=Clipboard Manager',
+    'Name=Clipmer',
     `Exec=${execPath}`,
     `Icon=${path.join(__dirname, 'assets', 'icon.png')}`,
     'Comment=Clipboard History Manager',
@@ -459,7 +459,7 @@ function writeAutostartDesktopFile() {
   ].join('\n') + '\n';
 
   fs.writeFileSync(
-    path.join(autostartDir, 'clipboard-manager.desktop'),
+    path.join(autostartDir, 'clipmer.desktop'),
     desktopEntry
   );
 }
@@ -468,7 +468,7 @@ function writeAutostartDesktopFile() {
 
 function installPasteExtension() {
   const os = require('os');
-  const extId = 'clipboard-manager-paste@clipboard-manager.local';
+  const extId = 'clipmer-paste@clipmer.local';
   const extDir = path.join(
     os.homedir(),
     '.local/share/gnome-shell/extensions',

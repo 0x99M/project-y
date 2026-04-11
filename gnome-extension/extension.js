@@ -4,7 +4,7 @@ import Gio from 'gi://Gio';
 
 const DBUS_INTERFACE = `
 <node>
-  <interface name="com.clipboard.manager.PasteHelper">
+  <interface name="com.clipmer.PasteHelper">
     <method name="Paste"/>
   </interface>
 </node>`;
@@ -53,11 +53,11 @@ export default class ClipboardPasteExtension {
     );
     this._dbus.export(
       Gio.DBus.session,
-      '/com/clipboard/manager/PasteHelper'
+      '/com/clipmer/PasteHelper'
     );
     this._ownerId = Gio.bus_own_name(
       Gio.BusType.SESSION,
-      'com.clipboard.manager.PasteHelper',
+      'com.clipmer.PasteHelper',
       Gio.BusNameOwnerFlags.NONE,
       null, null, null
     );

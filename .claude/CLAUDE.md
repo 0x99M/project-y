@@ -1,4 +1,4 @@
-# Clipboard Manager — Project Rules
+# Clipmer — Project Rules
 
 ## Stack
 - Electron (latest), Vanilla JS/HTML/CSS, no frontend frameworks
