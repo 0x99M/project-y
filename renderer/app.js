@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyAccent(savedAccent);
   const savedShortcut = await window.clipboardManager.getShortcut();
   document.getElementById('shortcut-recorder').textContent = savedShortcut;
+  const autoPasteToggle = document.getElementById('auto-paste-toggle');
+  autoPasteToggle.checked = await window.clipboardManager.getAutoPaste();
 
   historyData = await window.clipboardManager.getHistory();
   pinnedData = await window.clipboardManager.getPinned();
@@ -90,6 +92,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       searchBar.style.display = '';
       footer.style.display = '';
       applyFilter();
+    }
+  });
+
+  // Auto-paste toggle
+  autoPasteToggle.addEventListener('change', async () => {
+    const result = await window.clipboardManager.setAutoPaste(autoPasteToggle.checked);
+    if (result === 'needs-restart') {
+      alert('Almost there! Log out and log back in to activate auto-paste.');
     }
   });
 
@@ -172,9 +182,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyAccent('#E95420');
     accentPicker.value = '#E95420';
     recorder.textContent = 'Ctrl+Shift+D';
+    autoPasteToggle.checked = false;
     window.clipboardManager.setTheme('dark');
     window.clipboardManager.setAccent('#E95420');
     window.clipboardManager.setShortcut('Ctrl+Shift+D');
+    window.clipboardManager.setAutoPaste(false);
   });
 
   document.addEventListener('keydown', handleKeyDown);
@@ -322,7 +334,7 @@ async function selectEntry(index) {
   const entries = currentEntries();
   if (index < 0 || index >= entries.length) return;
   await window.clipboardManager.copyToClipboard(entries[index]);
-  await window.clipboardManager.hideWindow();
+  await window.clipboardManager.simulatePaste();
 }
 
 // ─── Settings ───────────────────────────────────────────────────────────────────

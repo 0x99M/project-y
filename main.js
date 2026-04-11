@@ -25,6 +25,7 @@ const store = new Store({
     theme: 'dark',
     accentColor: '#E95420',
     shortcut: 'Ctrl+Shift+D',
+    autoPaste: false,
     firstLaunch: true,
   },
 });
@@ -222,6 +223,24 @@ ipcMain.handle('clear-history', () => {
 
 ipcMain.handle('hide-window', () => {
   if (mainWindow) mainWindow.hide();
+});
+
+ipcMain.handle('simulate-paste', () => {
+  if (mainWindow) mainWindow.hide();
+
+  if (!store.get('autoPaste')) return;
+
+  setTimeout(() => {
+    const { exec } = require('child_process');
+    exec(
+      'gdbus call --session --dest com.clipboard.manager.PasteHelper ' +
+      '--object-path /com/clipboard/manager/PasteHelper ' +
+      '--method com.clipboard.manager.PasteHelper.Paste',
+      (err) => {
+        if (err) console.log('Auto-paste unavailable. Enable the Clipboard Manager Paste Helper extension.');
+      }
+    );
+  }, 150);
 });
 
 ipcMain.handle('update-note', (_event, { id, note }) => {
@@ -441,6 +460,52 @@ function writeAutostartDesktopFile() {
   );
 }
 
+// ─── Paste extension ────────────────────────────────────────────────────────────
+
+function installPasteExtension() {
+  const os = require('os');
+  const extId = 'clipboard-manager-paste@clipboard-manager.local';
+  const extDir = path.join(
+    os.homedir(),
+    '.local/share/gnome-shell/extensions',
+    extId
+  );
+
+  const srcDir = path.join(__dirname, 'gnome-extension');
+  if (!fs.existsSync(srcDir)) return;
+
+  const isNew = !fs.existsSync(extDir);
+  if (isNew) fs.mkdirSync(extDir, { recursive: true });
+
+  for (const file of ['metadata.json', 'extension.js']) {
+    fs.copyFileSync(path.join(srcDir, file), path.join(extDir, file));
+  }
+
+  const { execSync } = require('child_process');
+  try {
+    execSync(`gnome-extensions enable ${extId}`);
+  } catch {
+    // Extension not yet known to GNOME Shell — needs logout/login
+  }
+
+  return isNew;
+}
+
+ipcMain.handle('get-auto-paste', () => store.get('autoPaste') || false);
+
+ipcMain.handle('set-auto-paste', (_event, enabled) => {
+  store.set('autoPaste', enabled);
+
+  if (enabled) {
+    const isNew = installPasteExtension();
+    if (isNew) {
+      return 'needs-restart';
+    }
+  }
+
+  return 'ok';
+});
+
 // ─── App lifecycle ──────────────────────────────────────────────────────────────
 
 app.whenReady().then(() => {
@@ -469,6 +534,7 @@ app.whenReady().then(() => {
   createTray();
   registerGlobalShortcut();
   registerGnomeShortcut();
+  if (store.get('autoPaste')) installPasteExtension();
   startClipboardPolling();
   checkAutostart();
 });

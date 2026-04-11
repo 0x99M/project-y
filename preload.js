@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   copyToClipboard: (entry) => ipcRenderer.invoke('copy-to-clipboard', entry),
   clearHistory: () => ipcRenderer.invoke('clear-history'),
   hideWindow: () => ipcRenderer.invoke('hide-window'),
+  simulatePaste: () => ipcRenderer.invoke('simulate-paste'),
   updateNote: ({ id, note }) => ipcRenderer.invoke('update-note', { id, note }),
   toggleExpand: () => ipcRenderer.invoke('toggle-expand'),
   getPinned: () => ipcRenderer.invoke('get-pinned'),
@@ -17,6 +18,8 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   setAccent: (color) => ipcRenderer.invoke('set-accent', color),
   getShortcut: () => ipcRenderer.invoke('get-shortcut'),
   setShortcut: (shortcut) => ipcRenderer.invoke('set-shortcut', shortcut),
+  getAutoPaste: () => ipcRenderer.invoke('get-auto-paste'),
+  setAutoPaste: (enabled) => ipcRenderer.invoke('set-auto-paste', enabled),
   onHistoryUpdated: (callback) => {
     ipcRenderer.removeAllListeners('history-updated');
     ipcRenderer.on('history-updated', (_event, history) => callback(history));

@@ -1,0 +1,7 @@
+{
+  "uuid": "clipboard-manager-paste@clipboard-manager.local",
+  "name": "Clipboard Manager Paste Helper",
+  "description": "Enables paste simulation for Clipboard Manager app",
+  "shell-version": ["46", "47", "48", "49"],
+  "url": ""
+}
