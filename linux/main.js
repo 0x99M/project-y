@@ -30,6 +30,7 @@ const store = new Store({
     autoClearSearch: true,
     fontSize: 13,
     minimalView: false,
+    rememberPosition: true,
     firstLaunch: true,
   },
 });
@@ -97,6 +98,24 @@ function createWindow() {
 // ─── Window positioning ─────────────────────────────────────────────────────────
 
 function showWindow() {
+  if (store.get('rememberPosition') !== false) {
+    const saved = store.get('lastWindowPosition');
+    if (saved) {
+      const displays = screen.getAllDisplays();
+      const onScreen = displays.some((d) => {
+        const b = d.bounds;
+        return saved.x >= b.x && saved.x < b.x + b.width &&
+               saved.y >= b.y && saved.y < b.y + b.height;
+      });
+      if (onScreen) {
+        mainWindow.setPosition(saved.x, saved.y);
+        mainWindow.show();
+        mainWindow.focus();
+        return;
+      }
+    }
+  }
+
   const { workAreaSize } = screen.getPrimaryDisplay();
   const { width, height } = mainWindow.getBounds();
   const x = Math.round((workAreaSize.width - width) / 2);
@@ -108,6 +127,10 @@ function showWindow() {
 
 function toggleWindow() {
   if (mainWindow.isVisible()) {
+    if (store.get('rememberPosition') !== false) {
+      const bounds = mainWindow.getBounds();
+      store.set('lastWindowPosition', { x: bounds.x, y: bounds.y });
+    }
     mainWindow.hide();
   } else {
     showWindow();
@@ -513,6 +536,8 @@ ipcMain.handle('get-font-size', () => store.get('fontSize') || 13);
 ipcMain.handle('set-font-size', (_event, size) => store.set('fontSize', size));
 ipcMain.handle('get-minimal-view', () => store.get('minimalView') || false);
 ipcMain.handle('set-minimal-view', (_event, v) => store.set('minimalView', v));
+ipcMain.handle('get-remember-position', () => store.get('rememberPosition') !== false);
+ipcMain.handle('set-remember-position', (_event, v) => store.set('rememberPosition', v));
 
 ipcMain.handle('set-auto-paste', (_event, enabled) => {
   store.set('autoPaste', enabled);

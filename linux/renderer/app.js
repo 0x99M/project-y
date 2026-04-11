@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const autoClearSearchToggle = document.getElementById('auto-clear-search-toggle');
   autoClearSearch = await window.clipboardManager.getAutoClearSearch();
   autoClearSearchToggle.checked = autoClearSearch;
+  const rememberPosToggle = document.getElementById('remember-position-toggle');
+  rememberPosToggle.checked = await window.clipboardManager.getRememberPosition();
   const minimalToggle = document.getElementById('minimal-view-toggle');
   const savedMinimal = await window.clipboardManager.getMinimalView();
   minimalToggle.checked = savedMinimal;
@@ -170,6 +172,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.clipboardManager.setAutoClearSearch(autoClearSearch);
   });
 
+  // Remember position toggle
+  rememberPosToggle.addEventListener('change', () => {
+    window.clipboardManager.setRememberPosition(rememberPosToggle.checked);
+  });
+
   // Apply settings when window becomes visible
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && !settingsOpen) {
@@ -269,6 +276,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     autoPasteToggle.checked = false;
     autoScrollToggle.checked = true;
     autoClearSearchToggle.checked = true;
+    rememberPosToggle.checked = true;
+    window.clipboardManager.setRememberPosition(true);
     minimalToggle.checked = false;
     document.body.classList.remove('minimal');
     autoScrollTop = true;

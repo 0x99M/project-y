@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   setFontSize: (size) => ipcRenderer.invoke('set-font-size', size),
   getMinimalView: () => ipcRenderer.invoke('get-minimal-view'),
   setMinimalView: (v) => ipcRenderer.invoke('set-minimal-view', v),
+  getRememberPosition: () => ipcRenderer.invoke('get-remember-position'),
+  setRememberPosition: (v) => ipcRenderer.invoke('set-remember-position', v),
   getAutostart: () => ipcRenderer.invoke('get-autostart'),
   setAutostart: (v) => ipcRenderer.invoke('set-autostart', v),
   onHistoryUpdated: (callback) => {
