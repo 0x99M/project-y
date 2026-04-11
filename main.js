@@ -28,6 +28,7 @@ const store = new Store({
     autoPaste: false,
     autoScrollTop: true,
     autoClearSearch: true,
+    fontSize: 13,
     firstLaunch: true,
   },
 });
@@ -498,6 +499,8 @@ ipcMain.handle('get-auto-scroll-top', () => store.get('autoScrollTop') !== false
 ipcMain.handle('set-auto-scroll-top', (_event, v) => store.set('autoScrollTop', v));
 ipcMain.handle('get-auto-clear-search', () => store.get('autoClearSearch') !== false);
 ipcMain.handle('set-auto-clear-search', (_event, v) => store.set('autoClearSearch', v));
+ipcMain.handle('get-font-size', () => store.get('fontSize') || 13);
+ipcMain.handle('set-font-size', (_event, size) => store.set('fontSize', size));
 
 ipcMain.handle('set-auto-paste', (_event, enabled) => {
   store.set('autoPaste', enabled);

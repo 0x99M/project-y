@@ -20,6 +20,13 @@
   --border-default: rgba(255, 255, 255, 0.10);
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-input: rgba(255, 255, 255, 0.15);
+
+  /* Font sizes */
+  --font-size-base: 13px;
+  --font-size-label: calc(var(--font-size-base) - 1px);
+  --font-size-small: calc(var(--font-size-base) - 2px);
+  --font-size-xs: calc(var(--font-size-base) - 3px);
+  --font-size-xxs: calc(var(--font-size-base) - 4px);
 }
 
 body.theme-light {
@@ -56,7 +63,7 @@ body {
   background: var(--surface-base);
   color: var(--text-primary);
   font-family: 'Ubuntu', 'Cantarell', sans-serif;
-  font-size: 13px;
+  font-size: var(--font-size-base);
   font-weight: 400;
   overflow: hidden;
   border-radius: 10px;
@@ -94,7 +101,7 @@ body {
 
 #title {
   font-weight: 500;
-  font-size: 13px;
+  font-size: var(--font-size-base);
   color: var(--text-primary);
 }
 
@@ -106,7 +113,7 @@ body {
 }
 
 #entry-count {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 400;
   color: var(--text-secondary);
 }
@@ -165,7 +172,7 @@ body.expanded .entry-image-preview {
   border-bottom: 2px solid transparent;
   color: var(--text-secondary);
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--font-size-label);
   font-weight: 500;
   cursor: pointer;
   transition: color 150ms ease, border-color 150ms ease;
@@ -206,7 +213,7 @@ body.expanded .entry-image-preview {
   border: 1px solid var(--border-input);
   border-radius: 6px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--font-size-base);
   font-weight: 400;
   outline: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -260,7 +267,7 @@ body.expanded .entry-image-preview {
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -293,7 +300,7 @@ body.expanded .entry-image-preview {
   overflow: hidden;
   word-break: break-all;
   line-height: 1.5;
-  font-size: 13px;
+  font-size: var(--font-size-base);
   font-weight: 400;
   color: var(--text-primary);
 }
@@ -307,7 +314,7 @@ body.expanded .entry-image-preview {
 }
 
 .entry-time {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 400;
   color: var(--text-muted);
   margin-top: 4px;
@@ -336,13 +343,13 @@ body.expanded .entry-image-preview {
 }
 
 #empty-state p {
-  font-size: 13px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: var(--text-secondary);
 }
 
 #empty-state .empty-hint {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 400;
   color: var(--text-muted);
   margin-top: 4px;
@@ -361,7 +368,7 @@ body.expanded .entry-image-preview {
 }
 
 #footer-hint {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 400;
   color: var(--text-muted);
 }
@@ -373,7 +380,7 @@ body.expanded .entry-image-preview {
   border-radius: 6px;
   padding: 6px 16px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 500;
   cursor: pointer;
   transition: background 150ms ease;
@@ -413,7 +420,7 @@ body.expanded .entry-image-preview {
   right: 28px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: 500;
   color: var(--text-secondary);
   background: var(--surface-raised);
@@ -427,7 +434,7 @@ body.expanded .entry-image-preview {
 
 #search-mode-badge kbd {
   font-family: inherit;
-  font-size: 9px;
+  font-size: var(--font-size-xxs);
   color: var(--text-muted);
   background: var(--border-default);
   padding: 1px 4px;
@@ -457,7 +464,7 @@ body.expanded .entry-image-preview {
   border: 1px solid transparent;
   border-radius: 4px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 400;
   outline: none;
   box-sizing: border-box;
@@ -534,7 +541,7 @@ body.expanded .entry-image-preview {
 }
 
 .settings-title {
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -552,18 +559,18 @@ body.expanded .entry-image-preview {
 }
 
 .settings-label {
-  font-size: 12px;
+  font-size: var(--font-size-label);
   color: var(--text-primary);
 }
 
 .settings-value {
-  font-size: 12px;
+  font-size: var(--font-size-label);
   color: var(--text-secondary);
 }
 
 .settings-key {
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   color: var(--text-secondary);
   background: var(--surface-raised);
   padding: 2px 8px;
@@ -578,7 +585,7 @@ body.expanded .entry-image-preview {
 
 .settings-about .settings-label {
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: var(--font-size-small);
 }
 
 #reset-settings-btn {
@@ -590,7 +597,7 @@ body.expanded .entry-image-preview {
   border: 1px solid var(--border-default);
   border-radius: 6px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   transition: color 150ms ease, border-color 150ms ease;
 }
@@ -615,7 +622,7 @@ body.expanded .entry-image-preview {
   border: none;
   color: var(--text-secondary);
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--font-size-small);
   font-weight: 500;
   padding: 4px 12px;
   cursor: pointer;
@@ -632,7 +639,7 @@ body.expanded .entry-image-preview {
 }
 
 .settings-hint {
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
   margin-top: -2px;
   padding-bottom: 4px;
@@ -699,6 +706,23 @@ body.expanded .entry-image-preview {
   border-color: var(--accent);
   background: var(--accent-muted);
   color: var(--accent);
+}
+
+.font-size-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#font-size-slider {
+  width: 80px;
+  accent-color: var(--accent);
+}
+
+#font-size-value {
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  min-width: 30px;
 }
 
 #accent-picker {

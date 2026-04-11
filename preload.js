@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   setAutoScrollTop: (v) => ipcRenderer.invoke('set-auto-scroll-top', v),
   getAutoClearSearch: () => ipcRenderer.invoke('get-auto-clear-search'),
   setAutoClearSearch: (v) => ipcRenderer.invoke('set-auto-clear-search', v),
+  getFontSize: () => ipcRenderer.invoke('get-font-size'),
+  setFontSize: (size) => ipcRenderer.invoke('set-font-size', size),
   onHistoryUpdated: (callback) => {
     ipcRenderer.removeAllListeners('history-updated');
     ipcRenderer.on('history-updated', (_event, history) => callback(history));

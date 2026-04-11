@@ -31,6 +31,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const autoClearSearchToggle = document.getElementById('auto-clear-search-toggle');
   autoClearSearch = await window.clipboardManager.getAutoClearSearch();
   autoClearSearchToggle.checked = autoClearSearch;
+  const fontSlider = document.getElementById('font-size-slider');
+  const savedFontSize = await window.clipboardManager.getFontSize();
+  applyFontSize(savedFontSize);
+  fontSlider.value = savedFontSize;
+  document.getElementById('font-size-value').textContent = savedFontSize + 'px';
 
   historyData = await window.clipboardManager.getHistory();
   pinnedData = await window.clipboardManager.getPinned();
@@ -101,6 +106,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       footer.style.display = '';
       applyFilter();
     }
+  });
+
+  // Font size slider
+  fontSlider.addEventListener('input', () => {
+    const size = parseInt(fontSlider.value);
+    applyFontSize(size);
+    document.getElementById('font-size-value').textContent = size + 'px';
+    window.clipboardManager.setFontSize(size);
   });
 
   // Auto-paste toggle
@@ -226,8 +239,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.clipboardManager.setAccent('#E95420');
     window.clipboardManager.setShortcut('Ctrl+Shift+D');
     window.clipboardManager.setAutoPaste(false);
+    fontSlider.value = 13;
+    applyFontSize(13);
+    document.getElementById('font-size-value').textContent = '13px';
     window.clipboardManager.setAutoScrollTop(true);
     window.clipboardManager.setAutoClearSearch(true);
+    window.clipboardManager.setFontSize(13);
   });
 
   document.addEventListener('keydown', handleKeyDown);
@@ -259,6 +276,10 @@ function applyAccent(hex) {
   document.documentElement.style.setProperty('--accent', hex);
   document.documentElement.style.setProperty('--accent-hover', `rgb(${hoverR}, ${hoverG}, ${hoverB})`);
   document.documentElement.style.setProperty('--accent-muted', `rgba(${r}, ${g}, ${b}, 0.20)`);
+}
+
+function applyFontSize(size) {
+  document.documentElement.style.setProperty('--font-size-base', size + 'px');
 }
 
 // ─── Rendering ──────────────────────────────────────────────────────────────────
