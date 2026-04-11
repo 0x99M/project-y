@@ -24,7 +24,7 @@
     "productName": "Clipboard Manager",
     "linux": {
       "target": ["AppImage", "deb"],
-      "icon": "assets/icon.png",
+      "icon": "assets/icons/",
       "category": "Utility"
     }
   }
