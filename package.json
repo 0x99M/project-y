@@ -26,6 +26,10 @@
       "target": ["AppImage", "deb"],
       "icon": "assets/icons/",
       "category": "Utility"
+    },
+    "deb": {
+      "depends": ["at-spi2-core"],
+      "afterInstall": "build/postinst.sh"
     }
   }
 }
