@@ -26,6 +26,8 @@ const store = new Store({
     accentColor: '#E95420',
     shortcut: 'Ctrl+Shift+D',
     autoPaste: false,
+    autoScrollTop: true,
+    autoClearSearch: true,
     firstLaunch: true,
   },
 });
@@ -492,6 +494,10 @@ function installPasteExtension() {
 }
 
 ipcMain.handle('get-auto-paste', () => store.get('autoPaste') || false);
+ipcMain.handle('get-auto-scroll-top', () => store.get('autoScrollTop') !== false);
+ipcMain.handle('set-auto-scroll-top', (_event, v) => store.set('autoScrollTop', v));
+ipcMain.handle('get-auto-clear-search', () => store.get('autoClearSearch') !== false);
+ipcMain.handle('set-auto-clear-search', (_event, v) => store.set('autoClearSearch', v));
 
 ipcMain.handle('set-auto-paste', (_event, enabled) => {
   store.set('autoPaste', enabled);

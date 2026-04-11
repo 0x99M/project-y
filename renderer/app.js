@@ -5,6 +5,8 @@ let selectedIndex = -1;
 let searchMode = 'content';
 let activeTab = 'history';
 let settingsOpen = false;
+let autoScrollTop = true;
+let autoClearSearch = true;
 
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
@@ -23,6 +25,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('shortcut-recorder').textContent = savedShortcut;
   const autoPasteToggle = document.getElementById('auto-paste-toggle');
   autoPasteToggle.checked = await window.clipboardManager.getAutoPaste();
+  const autoScrollToggle = document.getElementById('auto-scroll-toggle');
+  autoScrollTop = await window.clipboardManager.getAutoScrollTop();
+  autoScrollToggle.checked = autoScrollTop;
+  const autoClearSearchToggle = document.getElementById('auto-clear-search-toggle');
+  autoClearSearch = await window.clipboardManager.getAutoClearSearch();
+  autoClearSearchToggle.checked = autoClearSearch;
 
   historyData = await window.clipboardManager.getHistory();
   pinnedData = await window.clipboardManager.getPinned();
@@ -100,6 +108,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const result = await window.clipboardManager.setAutoPaste(autoPasteToggle.checked);
     if (result === 'needs-restart') {
       alert('Almost there! Log out and log back in to activate auto-paste.');
+    }
+  });
+
+  // Auto-scroll toggle
+  autoScrollToggle.addEventListener('change', () => {
+    autoScrollTop = autoScrollToggle.checked;
+    window.clipboardManager.setAutoScrollTop(autoScrollTop);
+  });
+
+  // Auto-clear search toggle
+  autoClearSearchToggle.addEventListener('change', () => {
+    autoClearSearch = autoClearSearchToggle.checked;
+    window.clipboardManager.setAutoClearSearch(autoClearSearch);
+  });
+
+  // Apply settings when window becomes visible
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !settingsOpen) {
+      if (autoClearSearch) {
+        searchEl.value = '';
+      }
+      selectedIndex = -1;
+      applyFilter();
+      if (autoScrollTop) {
+        listEl.scrollTop = 0;
+      }
+      searchEl.focus();
     }
   });
 
@@ -183,10 +218,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     accentPicker.value = '#E95420';
     recorder.textContent = 'Ctrl+Shift+D';
     autoPasteToggle.checked = false;
+    autoScrollToggle.checked = true;
+    autoClearSearchToggle.checked = true;
+    autoScrollTop = true;
+    autoClearSearch = true;
     window.clipboardManager.setTheme('dark');
     window.clipboardManager.setAccent('#E95420');
     window.clipboardManager.setShortcut('Ctrl+Shift+D');
     window.clipboardManager.setAutoPaste(false);
+    window.clipboardManager.setAutoScrollTop(true);
+    window.clipboardManager.setAutoClearSearch(true);
   });
 
   document.addEventListener('keydown', handleKeyDown);
