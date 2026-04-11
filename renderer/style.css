@@ -631,6 +631,13 @@ body.expanded .entry-image-preview {
   color: #fff;
 }
 
+.settings-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: -2px;
+  padding-bottom: 4px;
+}
+
 /* ─── Toggle switch ─────────────────────────────────────────────────────────── */
 
 .toggle-switch {
