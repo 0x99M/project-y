@@ -29,6 +29,7 @@ const store = new Store({
     autoScrollTop: true,
     autoClearSearch: true,
     fontSize: 13,
+    minimalView: false,
     firstLaunch: true,
   },
 });
@@ -501,6 +502,8 @@ ipcMain.handle('get-auto-clear-search', () => store.get('autoClearSearch') !== f
 ipcMain.handle('set-auto-clear-search', (_event, v) => store.set('autoClearSearch', v));
 ipcMain.handle('get-font-size', () => store.get('fontSize') || 13);
 ipcMain.handle('set-font-size', (_event, size) => store.set('fontSize', size));
+ipcMain.handle('get-minimal-view', () => store.get('minimalView') || false);
+ipcMain.handle('set-minimal-view', (_event, v) => store.set('minimalView', v));
 
 ipcMain.handle('set-auto-paste', (_event, enabled) => {
   store.set('autoPaste', enabled);

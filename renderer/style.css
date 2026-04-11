@@ -73,6 +73,7 @@ body {
 }
 
 #app {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -82,6 +83,58 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+/* ─── Minimal view ──────────────────────────────────────────────────────────── */
+
+body.minimal #header {
+  display: none;
+}
+
+body.minimal #tab-bar {
+  display: none;
+}
+
+body.minimal #footer {
+  display: none;
+}
+
+body.minimal #search-bar {
+  border-radius: 10px 10px 0 0;
+  -webkit-app-region: drag;
+}
+
+body.minimal #search,
+body.minimal #search-mode-badge {
+  -webkit-app-region: no-drag;
+}
+
+body.minimal #minimal-settings-btn {
+  display: flex;
+}
+
+/* ─── Floating settings button (minimal view) ──────────────────────────────── */
+
+#minimal-settings-btn {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px 0 0 0;
+  color: #fff;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 150ms ease;
+}
+
+#minimal-settings-btn:hover {
+  background: var(--accent-hover);
 }
 
 /* ─── Header (CSD headerbar) ────────────────────────────────────────────────── */
@@ -526,6 +579,28 @@ body.expanded .entry-image-preview {
 
 #settings-btn:hover {
   color: var(--accent);
+}
+
+#settings-back-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px 0 0 0;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 150ms ease;
+}
+
+#settings-back-btn:hover {
+  background: var(--accent-hover);
 }
 
 /* ─── Settings view ─────────────────────────────────────────────────────────── */

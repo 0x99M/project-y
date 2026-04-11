@@ -31,6 +31,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const autoClearSearchToggle = document.getElementById('auto-clear-search-toggle');
   autoClearSearch = await window.clipboardManager.getAutoClearSearch();
   autoClearSearchToggle.checked = autoClearSearch;
+  const minimalToggle = document.getElementById('minimal-view-toggle');
+  const savedMinimal = await window.clipboardManager.getMinimalView();
+  minimalToggle.checked = savedMinimal;
+  if (savedMinimal) document.body.classList.add('minimal');
   const fontSlider = document.getElementById('font-size-slider');
   const savedFontSize = await window.clipboardManager.getFontSize();
   applyFontSize(savedFontSize);
@@ -90,22 +94,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchBar = document.getElementById('search-bar');
     const footer = document.getElementById('footer');
 
+    const minimalBtn = document.getElementById('minimal-settings-btn');
+    const isMinimal = document.body.classList.contains('minimal');
+
     if (settingsOpen) {
       listEl.style.display = 'none';
       emptyEl.style.display = 'none';
       tabBar.style.display = 'none';
       searchBar.style.display = 'none';
       footer.style.display = 'none';
+      minimalBtn.style.display = 'none';
       settingsView.style.display = '';
       await renderStats();
     } else {
       settingsView.style.display = 'none';
       listEl.style.display = '';
-      tabBar.style.display = '';
       searchBar.style.display = '';
-      footer.style.display = '';
+      if (!isMinimal) {
+        tabBar.style.display = '';
+        footer.style.display = '';
+      }
+      minimalBtn.style.display = '';
       applyFilter();
     }
+  });
+
+  // Settings back button
+  document.getElementById('settings-back-btn').addEventListener('click', () => {
+    document.getElementById('settings-btn').click();
+  });
+
+  // Minimal view toggle
+  minimalToggle.addEventListener('change', () => {
+    document.body.classList.toggle('minimal', minimalToggle.checked);
+    window.clipboardManager.setMinimalView(minimalToggle.checked);
+  });
+
+  // Floating settings button (minimal view)
+  document.getElementById('minimal-settings-btn').addEventListener('click', () => {
+    document.getElementById('settings-btn').click();
   });
 
   // Font size slider
@@ -233,9 +260,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     autoPasteToggle.checked = false;
     autoScrollToggle.checked = true;
     autoClearSearchToggle.checked = true;
+    minimalToggle.checked = false;
+    document.body.classList.remove('minimal');
     autoScrollTop = true;
     autoClearSearch = true;
     window.clipboardManager.setTheme('dark');
+    window.clipboardManager.setMinimalView(false);
     window.clipboardManager.setAccent('#E95420');
     window.clipboardManager.setShortcut('Ctrl+Shift+D');
     window.clipboardManager.setAutoPaste(false);
