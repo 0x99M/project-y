@@ -368,6 +368,21 @@ function toGnomeBinding(shortcut) {
     .join('');
 }
 
+// Remove legacy GNOME shortcut from before the rename
+function cleanupLegacyShortcut() {
+  const { execSync } = require('child_process');
+  try {
+    const existing = execSync(
+      'gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings',
+      { encoding: 'utf8' }
+    ).trim();
+    if (existing.includes('clipboard-manager-toggle')) {
+      const cleaned = existing.replace(/,?\s*'\/org\/gnome\/settings-daemon\/plugins\/media-keys\/custom-keybindings\/clipboard-manager-toggle\/'/, '');
+      execSync(`gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "${cleaned}"`);
+    }
+  } catch {}
+}
+
 // Register a GNOME custom keyboard shortcut.
 // It runs our app binary; the single-instance lock sends SIGUSR1 to toggle.
 function registerGnomeShortcut() {
@@ -544,6 +559,7 @@ app.whenReady().then(() => {
 
   createWindow();
   createTray();
+  cleanupLegacyShortcut();
   registerGlobalShortcut();
   registerGnomeShortcut();
   if (store.get('autoPaste')) installPasteExtension();
