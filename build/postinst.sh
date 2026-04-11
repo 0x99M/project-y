@@ -26,6 +26,13 @@ if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ] && id "$REAL_USER" &>/dev/n
   # Fall back to standard paths if not found
   SESS_DBUS="${SESS_DBUS:-unix:path=${XDG_RUNTIME}/bus}"
 
+  # Kill old instance so the new version starts fresh
+  pkill -u "$REAL_USER" -f "/opt/Clipmer/clipmer" 2>/dev/null || true
+  for i in 1 2 3; do
+    pgrep -u "$REAL_USER" -f "/opt/Clipmer/clipmer" > /dev/null 2>&1 || break
+    sleep 1
+  done
+
   su "$REAL_USER" -c "
     export DISPLAY='${SESS_DISPLAY}'
     export WAYLAND_DISPLAY='${SESS_WAYLAND}'
