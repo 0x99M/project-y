@@ -464,21 +464,32 @@ function setAutostart(enabled) {
   const os = require('os');
   const autostartDir = path.join(os.homedir(), '.config', 'autostart');
   const desktopFile = path.join(autostartDir, 'clipmer.desktop');
+  const launcherScript = path.join(autostartDir, 'clipmer-launch.sh');
 
   if (enabled) {
     if (!fs.existsSync(autostartDir)) {
       fs.mkdirSync(autostartDir, { recursive: true });
     }
 
-    const execPath = app.isPackaged
-      ? process.execPath
-      : `${process.execPath} "${app.getAppPath()}"`;
+    const execTarget = app.isPackaged
+      ? `"${process.execPath}"`
+      : `"${process.execPath}" "${app.getAppPath()}"`;
+
+    const launcherContent = [
+      '#!/bin/bash',
+      'export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"',
+      'export XDG_RUNTIME_DIR="/run/user/$(id -u)"',
+      `exec ${execTarget}`,
+      '',
+    ].join('\n');
+
+    fs.writeFileSync(launcherScript, launcherContent, { mode: 0o755 });
 
     const desktopEntry = [
       '[Desktop Entry]',
       'Type=Application',
       'Name=Clipmer',
-      `Exec=${execPath}`,
+      `Exec=${launcherScript}`,
       `Icon=${path.join(__dirname, 'assets', 'icon.png')}`,
       'Comment=Clipboard History Manager',
       'Categories=Utility;',
@@ -490,6 +501,7 @@ function setAutostart(enabled) {
     fs.writeFileSync(desktopFile, desktopEntry);
   } else {
     try { fs.unlinkSync(desktopFile); } catch {}
+    try { fs.unlinkSync(launcherScript); } catch {}
   }
 }
 
