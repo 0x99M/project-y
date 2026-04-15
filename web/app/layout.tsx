@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Fira_Code } from "next/font/google";
+import { Ubuntu, Ubuntu_Mono } from "next/font/google";
 import "./globals.css";
 
-const firaCode = Fira_Code({
-  variable: "--font-fira",
+const ubuntu = Ubuntu({
+  variable: "--font-ubuntu",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["300", "400", "500", "700"],
+});
+
+const ubuntuMono = Ubuntu_Mono({
+  variable: "--font-ubuntu-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -58,7 +64,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${firaCode.variable} dark antialiased`}
+      className={`${ubuntu.variable} ${ubuntuMono.variable} dark antialiased`}
     >
       <body className="min-h-screen bg-background text-foreground">
         {children}
