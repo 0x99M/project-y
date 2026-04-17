@@ -518,48 +518,48 @@ function NotesMockup() {
 
 const features = [
   {
-    title: "Clipboard History",
-    description: "Every copy is saved automatically — text, code, links, images. Up to 200 entries, deduplicated, always ready when you need them.",
+    title: "Every copy, saved",
+    description: "Ctrl+C is now a permanent record. Text, code, links, images — up to 200 entries, deduplicated, still here after reboot.",
     mockup: ClipboardHistoryMockup,
   },
   {
-    title: "Pinned Items",
-    description: "Star the entries you use all the time — server addresses, tokens, commands. They survive restarts and never get pushed out of history.",
+    title: "Pin what you use daily",
+    description: "SSH commands, API tokens, connection strings — star them once and they stay at the top. They won't get pushed out by the next 200 copies.",
     mockup: PinnedItemsMockup,
   },
   {
-    title: "Smart Search",
-    description: "Start typing and results filter instantly. Search across content or notes, toggle between modes with Tab. Find anything you've ever copied.",
+    title: "Find anything, instantly",
+    description: "Start typing — results filter as you go. Search content or notes, no lag even at 200 entries. If you copied it, you'll find it.",
     mockup: SmartSearchMockup,
   },
   {
-    title: "Inline Notes",
-    description: "Attach a note to any clipboard entry — label what it is, where it's from, or what it's for. Notes are searchable and persist across restarts.",
+    title: "Add context with notes",
+    description: "Attach a note to any entry — label that token as \"staging API key\" so future-you knows what it's for. Notes are fully searchable.",
     mockup: NotesMockup,
   },
   {
-    title: "Auto-Paste",
-    description: "Select an entry and press Enter — it's pasted directly into the active app. Native Wayland integration via GNOME Shell, no workarounds needed.",
+    title: "Paste without switching windows",
+    description: "Open Clipmer, pick an entry, press Enter — it's pasted into whatever app you were just in. Works on Wayland. No xdotool hacks.",
     mockup: AutoPasteMockup,
   },
   {
-    title: "Keyboard First",
-    description: "Every action has a shortcut. Navigate with arrows, select with Enter, close with Escape. You never need to reach for the mouse.",
+    title: "Mouse never required",
+    description: "Open with one shortcut, navigate with arrows, Enter to paste, Esc to dismiss. Tab switches search modes. Your hands stay on the keys.",
     mockup: KeyboardMockup,
   },
   {
-    title: "Dark & Light Themes",
-    description: "Switch between dark and light mode to match your desktop. Pick any accent color you want — the whole UI adapts instantly.",
+    title: "Match your desktop",
+    description: "Light or dark. Any accent color. Clipmer should look like it belongs on your machine — not like a web app in an Electron wrapper.",
     mockup: ThemeMockup,
   },
   {
-    title: "Adjustable Font Size",
-    description: "Slide from 10px to 18px and every element in the UI scales proportionally. Make it compact or comfortable — your call.",
+    title: "Your eyes, your font size",
+    description: "Slide from 10 to 18px. The whole UI scales proportionally — padding, icons, row heights. Not just the text.",
     mockup: FontSizeMockup,
   },
   {
-    title: "Minimal View",
-    description: "Hides the header, tabs, and footer — just a floating list and a search bar. Toggle it with one shortcut for a distraction-free experience.",
+    title: "Strip it down to just the list",
+    description: "Minimal mode hides everything but the entries. Toggle it with one shortcut when you need to focus.",
     mockup: MinimalViewMockup,
   },
 ];
@@ -575,12 +575,12 @@ export function Features() {
         <FadeUp>
           <div className="text-center mb-20 lg:mb-28">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Everything you need,{" "}
-              <span className="text-orange">nothing you don&apos;t</span>
+              Everything you need.{" "}
+              <span className="text-orange">Nothing you don&apos;t.</span>
             </h2>
             <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto">
-              Built for developers who live in the terminal and need their
-              clipboard to keep up.
+              Your clipboard already handles passwords, API keys, and private
+              snippets. A manager for it should take that seriously.
             </p>
           </div>
         </FadeUp>

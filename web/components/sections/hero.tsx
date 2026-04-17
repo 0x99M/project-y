@@ -124,24 +124,24 @@ export function Hero() {
                     animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   />
-                  Free &amp; Open Source
+                  Open source &middot; 100% offline
                 </Badge>
               </motion.div>
             </FadeUp>
 
             <FadeUp delay={0.1}>
               <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-                Your clipboard.{" "}
+                Never lose a{" "}
                 <span className="inline-block bg-gradient-to-r from-orange via-[#ff7b45] to-orange bg-[length:200%_auto] bg-clip-text text-transparent animate-[gradient-shift_3s_ease_infinite]">
-                  Finally under control.
+                  copied item again.
                 </span>
               </h1>
             </FadeUp>
 
             <FadeUp delay={0.2}>
               <p className="mx-auto max-w-lg text-base text-muted-foreground leading-relaxed sm:text-lg lg:mx-0">
-                Clipboard history, search, pinned items and auto-paste — all in
-                one lightweight Linux app.
+                A fast clipboard history manager for Linux. Your copies stay on
+                your machine — no cloud, no telemetry, no account.
               </p>
             </FadeUp>
 
@@ -206,7 +206,7 @@ export function Hero() {
                     <div className="size-2.5 rounded-full bg-[#febc2e] sm:size-3" />
                     <div className="size-2.5 rounded-full bg-[#28c840] sm:size-3" />
                     <span className="ml-1.5 text-[10px] text-muted-foreground font-mono sm:ml-2 sm:text-xs">
-                      Clipmer v2.0.7
+                      Clipmer v3.0.0
                     </span>
                     <motion.div
                       className="ml-auto size-1.5 rounded-full bg-green-500"

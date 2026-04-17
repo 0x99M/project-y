@@ -1,16 +1,16 @@
+import Link from "next/link";
 import { Bug } from "lucide-react";
 
 export function Footer() {
   return (
     <footer className="border-t border-border py-8">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">Clipmer</span>
-            <span className="text-sm text-muted-foreground">v2.0.7</span>
-          </div>
-
-          <div className="flex items-center gap-6">
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">Clipmer</span>
+              <span className="text-sm text-muted-foreground">v3.0.0</span>
+            </div>
             <a
               href="https://github.com/0x99M/project-y"
               target="_blank"
@@ -30,10 +30,14 @@ export function Footer() {
               Report a Bug
             </a>
           </div>
-
-          <p className="text-sm text-muted-foreground">
-            MIT License
-          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
+            <Link href="/pro" className="hover:text-foreground transition-colors">Pro</Link>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link href="/refund" className="hover:text-foreground transition-colors">Refunds</Link>
+            <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+            <span>MIT License</span>
+          </div>
         </div>
       </div>
     </footer>

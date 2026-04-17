@@ -297,23 +297,23 @@ function PasteScene() {
 const steps = [
   {
     number: "1",
-    title: "Copy anything",
-    subtitle: "Just use your clipboard like normal",
-    description: "Clipmer watches in the background. Every Ctrl+C is saved automatically — text, code, links, images. No extra action needed.",
+    title: "Copy like you always do",
+    subtitle: "Nothing to learn",
+    description: "Clipmer runs in your tray and watches the system clipboard. Every Ctrl+C is saved locally — text, code, images. You don't change your workflow.",
     scene: CopyScene,
   },
   {
     number: "2",
-    title: "Open & search",
-    subtitle: "One shortcut to find it all",
-    description: "Press Ctrl+Shift+D and Clipmer pops up. Start typing to filter your history instantly. Switch between content and notes search with Tab.",
+    title: "Ctrl+Shift+D, type what you remember",
+    subtitle: "One shortcut, full history",
+    description: "Clipmer pops up instantly. Start typing any word you remember from the copy — it filters as you type. Search content or notes.",
     scene: SearchScene,
   },
   {
     number: "3",
-    title: "Press Enter",
-    subtitle: "Pasted into the active app",
-    description: "Select an entry and hit Enter. Clipmer closes and the text is pasted directly into whatever app you were using. Done.",
+    title: "Enter pastes it",
+    subtitle: "Back where you were",
+    description: "Clipmer disappears and the text lands in the app you came from. No alt-tab, no reformat, no rewrite. You're back in flow.",
     scene: PasteScene,
   },
 ];
@@ -326,11 +326,11 @@ export function HowItWorks() {
         <FadeUp>
           <div className="text-center mb-16 lg:mb-24">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Three steps.{" "}
-              <span className="text-orange">That&apos;s it.</span>
+              Three keystrokes.{" "}
+              <span className="text-orange">Zero friction.</span>
             </h2>
             <p className="mt-4 text-muted-foreground text-lg">
-              No setup, no configuration, no learning curve.
+              Install it once. You&apos;ll forget it&apos;s there — until the day you need a copy from an hour ago.
             </p>
           </div>
         </FadeUp>

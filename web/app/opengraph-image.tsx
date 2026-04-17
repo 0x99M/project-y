@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export const alt = "Clipmer — Clipboard History Manager for Linux";
+export const alt = "Clipmer — Offline Clipboard Manager for Linux";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -61,8 +61,8 @@ export default async function Image() {
             gap: 12,
           }}
         >
-          <span>Your clipboard.</span>
-          <span style={{ color: "#E95420" }}>Finally under control.</span>
+          <span>Never lose a</span>
+          <span style={{ color: "#E95420" }}>copied item again.</span>
         </div>
 
         {/* Subline */}
@@ -74,7 +74,7 @@ export default async function Image() {
             textAlign: "center",
           }}
         >
-          Clipboard History Manager for Linux
+          Offline clipboard manager for Linux &middot; Open source
         </div>
 
         {/* URL */}

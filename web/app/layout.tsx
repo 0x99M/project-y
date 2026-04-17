@@ -15,18 +15,18 @@ const ubuntuMono = Ubuntu_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clipmer — Clipboard History Manager for Linux",
+  title: "Clipmer — Offline Clipboard Manager for Linux",
   description:
-    "Clipboard history, search, pinned items and auto-paste — all in one lightweight Linux app. Built for Ubuntu, GNOME, and Wayland.",
+    "A fast, offline clipboard history manager for Linux. Search every copy, pin the ones you need, paste with one keystroke. Open source. Your data never leaves your machine.",
   keywords: [
-    "clipboard manager",
-    "clipboard history",
-    "linux clipboard",
-    "ubuntu clipboard",
-    "wayland clipboard",
-    "gnome clipboard",
-    "clipboard search",
-    "auto paste",
+    "clipboard manager linux",
+    "offline clipboard history",
+    "open source clipboard linux",
+    "ubuntu clipboard manager",
+    "wayland clipboard manager",
+    "gnome clipboard history",
+    "linux clipboard search",
+    "clipboard history manager",
   ],
   authors: [{ name: "Clipmer" }],
   alternates: {
@@ -37,15 +37,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://clipmer.app",
     siteName: "Clipmer",
-    title: "Clipmer — Clipboard History Manager for Linux",
+    title: "Clipmer — Offline Clipboard Manager for Linux",
     description:
-      "Clipboard history, search, pinned items and auto-paste — all in one lightweight Linux app.",
+      "Never lose a copied item again. Search every copy, pin what matters, paste with one keystroke. 100% offline, open source.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Clipmer — Clipboard History Manager for Linux",
+    title: "Clipmer — Offline Clipboard Manager for Linux",
     description:
-      "Clipboard history, search, pinned items and auto-paste — all in one lightweight Linux app.",
+      "Never lose a copied item again. Search every copy, pin what matters, paste with one keystroke. 100% offline, open source.",
   },
   metadataBase: new URL("https://clipmer.app"),
 };
@@ -58,6 +58,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${ubuntu.variable} ${ubuntuMono.variable} dark antialiased`}
     >
       <body className="min-h-screen bg-background text-foreground">
@@ -69,7 +70,7 @@ export default function RootLayout({
               "@type": "SoftwareApplication",
               name: "Clipmer",
               description:
-                "Clipboard history, search, pinned items and auto-paste — all in one lightweight Linux app for Ubuntu, GNOME, and Wayland.",
+                "An offline clipboard history manager for Linux. Search every copy, pin what matters, paste with one keystroke. 100% offline, open source, no telemetry.",
               applicationCategory: "UtilitiesApplication",
               operatingSystem: "Linux",
               url: "https://clipmer.app",
