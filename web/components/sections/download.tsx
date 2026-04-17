@@ -31,7 +31,7 @@ export function DownloadSection() {
               variant="outline"
               className="border-orange/30 bg-orange/10 text-orange font-mono"
             >
-              v2.0.6
+              v2.0.7
             </Badge>
           </div>
         </FadeUp>
@@ -39,7 +39,7 @@ export function DownloadSection() {
         <FadeUp delay={0.3}>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
             <a
-              href="https://github.com/0x99M/project-y/releases/download/v2.0.6/clipmer_2.0.6_amd64.deb"
+              href="https://github.com/0x99M/project-y/releases/download/v2.0.7/clipmer_2.0.7_amd64.deb"
               className={cn(
                 buttonVariants({ size: "lg" }),
                 "h-14 gap-2 px-8 text-base bg-orange text-white hover:bg-orange-hover"
@@ -49,7 +49,7 @@ export function DownloadSection() {
               Download .deb Package
             </a>
             <a
-              href="https://github.com/0x99M/project-y/releases/download/v2.0.6/Clipmer-2.0.6.AppImage"
+              href="https://github.com/0x99M/project-y/releases/download/v2.0.7/Clipmer-2.0.7.AppImage"
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
                 "h-14 gap-2 px-8 text-base border-border hover:bg-surface"

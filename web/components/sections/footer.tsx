@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2">
             <span className="font-semibold">Clipmer</span>
-            <span className="text-sm text-muted-foreground">v2.0.6</span>
+            <span className="text-sm text-muted-foreground">v2.0.7</span>
           </div>
 
           <div className="flex items-center gap-6">
