@@ -7,6 +7,7 @@ let activeTab = 'history';
 let settingsOpen = false;
 let autoScrollTop = true;
 let autoClearSearch = true;
+let proActive = false;
 
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
@@ -296,7 +297,128 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.addEventListener('keydown', handleKeyDown);
+
+  // ─── License UI ─────────────────────────────────────────────────────────────
+  await initLicense();
+
+  document.getElementById('activate-btn').addEventListener('click', async () => {
+    const input = document.getElementById('license-input');
+    const key = input.value.trim();
+    if (!key) return;
+    const result = await window.clipboardManager.activateLicense(key);
+    const msg = document.getElementById('license-message');
+    msg.style.display = 'block';
+    if (result.success) {
+      msg.textContent = 'License activated!';
+      msg.className = 'license-message success';
+      input.value = '';
+      await initLicense();
+      historyData = await window.clipboardManager.getHistory();
+      pinnedData = await window.clipboardManager.getPinned();
+      render(getSourceData());
+    } else {
+      msg.textContent = result.error || 'Invalid license key';
+      msg.className = 'license-message error';
+    }
+  });
+
+  document.getElementById('buy-btn').addEventListener('click', () => {
+    window.open('https://clipmer.app/pro', '_blank');
+  });
+
+  document.getElementById('deactivate-btn').addEventListener('click', async () => {
+    await window.clipboardManager.deactivateLicense();
+    await initLicense();
+    historyData = await window.clipboardManager.getHistory();
+    pinnedData = await window.clipboardManager.getPinned();
+    render(getSourceData());
+  });
 });
+
+// ─── License ────────────────────────────────────────────────────────────────────
+
+async function initLicense() {
+  const info = await window.clipboardManager.getLicenseInfo();
+  proActive = info.isPro;
+
+  const statusEl = document.getElementById('license-status');
+  const freeUI = document.getElementById('license-free-ui');
+  const proUI = document.getElementById('license-pro-ui');
+  const msgEl = document.getElementById('license-message');
+
+  if (proActive) {
+    statusEl.textContent = 'Pro';
+    statusEl.classList.add('license-pro-status');
+    freeUI.style.display = 'none';
+    proUI.style.display = '';
+    document.getElementById('license-email').textContent = info.email;
+  } else {
+    statusEl.textContent = 'Free';
+    statusEl.classList.remove('license-pro-status');
+    freeUI.style.display = '';
+    proUI.style.display = 'none';
+    msgEl.style.display = 'none';
+  }
+
+  applyProGating();
+}
+
+function applyProGating() {
+  const proRows = [
+    'auto-paste-toggle',
+    'minimal-view-toggle',
+    'accent-picker',
+    'font-size-slider',
+    'shortcut-recorder',
+  ];
+
+  // Theme buttons
+  document.querySelectorAll('.theme-btn').forEach((btn) => {
+    if (!proActive && btn.dataset.theme === 'light') {
+      btn.classList.add('pro-locked');
+    } else {
+      btn.classList.remove('pro-locked');
+    }
+  });
+
+  proRows.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const row = el.closest('.settings-row');
+    if (!row) return;
+    if (!proActive) {
+      row.classList.add('pro-locked');
+      if (!row.querySelector('.pro-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'pro-badge';
+        badge.textContent = 'PRO';
+        row.querySelector('.settings-label')?.appendChild(badge);
+      }
+    } else {
+      row.classList.remove('pro-locked');
+      row.querySelector('.pro-badge')?.remove();
+    }
+  });
+
+  // Pinned tab
+  const pinnedTab = document.querySelector('[data-tab="pinned"]');
+  if (pinnedTab) {
+    if (!proActive) {
+      pinnedTab.classList.add('pro-locked');
+    } else {
+      pinnedTab.classList.remove('pro-locked');
+    }
+  }
+
+  // Search bar
+  if (!proActive) {
+    searchEl.disabled = true;
+    searchEl.placeholder = 'Search (Pro)';
+  } else {
+    searchEl.disabled = false;
+    searchEl.placeholder = 'Search clipboard...';
+  }
+}
 
 // ─── Theme ──────────────────────────────────────────────────────────────────────
 
@@ -383,13 +505,14 @@ function render(entries) {
     time.textContent = timeAgo(entry.timestamp);
     body.appendChild(time);
 
-    // Note input (always visible)
+    // Note input (pro only)
     const noteInput = document.createElement('input');
     noteInput.type = 'text';
     noteInput.className = 'note-input';
     noteInput.placeholder = 'Add a note...';
     noteInput.maxLength = 500;
     noteInput.value = entry.note || '';
+    if (!proActive) noteInput.style.display = 'none';
 
     const saveNote = debounce((value) => {
       window.clipboardManager.updateNote({ id: entry.id, note: value });
@@ -407,10 +530,11 @@ function render(entries) {
     body.appendChild(noteInput);
     row.appendChild(body);
 
-    // Pin/unpin button
+    // Pin/unpin button (pro only)
     const isPinned = pinnedIds.has(entry.id);
     const pinBtn = document.createElement('button');
     pinBtn.className = 'pin-btn' + (isPinned ? ' pinned' : '');
+    if (!proActive) pinBtn.style.display = 'none';
     pinBtn.title = isPinned ? 'Unpin' : 'Pin';
     pinBtn.textContent = isPinned ? '\u2605' : '\u2606';
     pinBtn.addEventListener('click', (e) => {

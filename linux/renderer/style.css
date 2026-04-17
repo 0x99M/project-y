@@ -818,3 +818,111 @@ body.expanded .entry-image-preview {
   border: none;
   border-radius: 2px;
 }
+
+/* ─── License ────────────────────────────────────────────────────────────────── */
+
+#license-input {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--surface-input);
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: var(--font-size-small);
+  font-family: monospace;
+  outline: none;
+}
+
+#license-input:focus {
+  border-color: var(--accent);
+}
+
+.license-input-row {
+  flex-direction: column !important;
+}
+
+.license-btn-row {
+  gap: 6px;
+}
+
+.license-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.license-btn:hover {
+  background: var(--surface-input);
+}
+
+.license-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.license-btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.license-message {
+  font-size: var(--font-size-xs);
+  padding: 4px 0;
+}
+
+.license-message.success {
+  color: #4ade80;
+}
+
+.license-message.error {
+  color: #f87171;
+}
+
+#license-status {
+  font-weight: 600;
+}
+
+.license-pro-status {
+  color: var(--accent);
+}
+
+/* Pro feature badges */
+.pro-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--accent-muted);
+  color: var(--accent);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.pro-locked {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.upgrade-banner {
+  text-align: center;
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.upgrade-banner a {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.upgrade-banner a:hover {
+  text-decoration: underline;
+}

@@ -14,6 +14,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const Store = require('electron-store');
+const license = require('./license');
 
 // ─── Persistence ────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,8 @@ const store = new Store({
   },
 });
 
+license.init(store);
+
 // ─── State ──────────────────────────────────────────────────────────────────────
 
 let mainWindow = null;
@@ -46,6 +49,7 @@ let lastClipboardImageB64 = '';
 let pollingInterval = null;
 
 const MAX_HISTORY = 200;
+const FREE_HISTORY_LIMIT = 25;
 const POLL_MS = 500;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const PID_FILE = path.join(app.getPath('userData'), 'clipmer.pid');
@@ -216,7 +220,7 @@ function addEntry(type, content, preview) {
   store.set('history', clipboardHistory);
 
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('history-updated', clipboardHistory);
+    mainWindow.webContents.send('history-updated', getVisibleHistory());
   }
 }
 
@@ -228,9 +232,14 @@ function clearHistory() {
   }
 }
 
+function getVisibleHistory() {
+  if (license.isPro()) return clipboardHistory;
+  return clipboardHistory.filter((e) => e.type === 'text').slice(0, FREE_HISTORY_LIMIT);
+}
+
 // ─── IPC handlers ───────────────────────────────────────────────────────────────
 
-ipcMain.handle('get-history', () => clipboardHistory);
+ipcMain.handle('get-history', () => getVisibleHistory());
 
 ipcMain.handle('copy-to-clipboard', (_event, entry) => {
   if (entry.type === 'text') {
@@ -271,6 +280,7 @@ ipcMain.handle('simulate-paste', () => {
 });
 
 ipcMain.handle('update-note', (_event, { id, note }) => {
+  if (!license.isPro()) return;
   const entry = clipboardHistory.find((e) => e.id === id)
     || pinnedEntries.find((e) => e.id === id);
   if (entry) {
@@ -280,9 +290,13 @@ ipcMain.handle('update-note', (_event, { id, note }) => {
   }
 });
 
-ipcMain.handle('get-pinned', () => pinnedEntries);
+ipcMain.handle('get-pinned', () => {
+  if (!license.isPro()) return [];
+  return pinnedEntries;
+});
 
 ipcMain.handle('pin-entry', (_event, id) => {
+  if (!license.isPro()) return;
   const idx = clipboardHistory.findIndex((e) => e.id === id);
   if (idx === -1) return;
   const [entry] = clipboardHistory.splice(idx, 1);
@@ -290,11 +304,12 @@ ipcMain.handle('pin-entry', (_event, id) => {
   pinnedEntries.unshift(entry);
   store.set('history', clipboardHistory);
   store.set('pinned', pinnedEntries);
-  mainWindow?.webContents.send('history-updated', clipboardHistory);
+  mainWindow?.webContents.send('history-updated', getVisibleHistory());
   mainWindow?.webContents.send('pinned-updated', pinnedEntries);
 });
 
 ipcMain.handle('unpin-entry', (_event, id) => {
+  if (!license.isPro()) return;
   const idx = pinnedEntries.findIndex((e) => e.id === id);
   if (idx === -1) return;
   const [entry] = pinnedEntries.splice(idx, 1);
@@ -302,7 +317,7 @@ ipcMain.handle('unpin-entry', (_event, id) => {
   if (clipboardHistory.length > MAX_HISTORY) clipboardHistory.pop();
   store.set('history', clipboardHistory);
   store.set('pinned', pinnedEntries);
-  mainWindow?.webContents.send('history-updated', clipboardHistory);
+  mainWindow?.webContents.send('history-updated', getVisibleHistory());
   mainWindow?.webContents.send('pinned-updated', pinnedEntries);
 });
 
@@ -331,18 +346,21 @@ ipcMain.handle('get-stats', () => {
 ipcMain.handle('get-theme', () => store.get('theme') || 'dark');
 
 ipcMain.handle('set-theme', (_event, theme) => {
+  if (!license.isPro()) return;
   store.set('theme', theme);
 });
 
 ipcMain.handle('get-accent', () => store.get('accentColor') || '#E95420');
 
 ipcMain.handle('set-accent', (_event, color) => {
+  if (!license.isPro()) return;
   store.set('accentColor', color);
 });
 
 ipcMain.handle('get-shortcut', () => store.get('shortcut') || 'Ctrl+Shift+D');
 
 ipcMain.handle('set-shortcut', (_event, shortcut) => {
+  if (!license.isPro()) return;
   globalShortcut.unregisterAll();
   store.set('shortcut', shortcut);
   registerGlobalShortcut();
@@ -545,13 +563,14 @@ ipcMain.handle('set-auto-scroll-top', (_event, v) => store.set('autoScrollTop', 
 ipcMain.handle('get-auto-clear-search', () => store.get('autoClearSearch') !== false);
 ipcMain.handle('set-auto-clear-search', (_event, v) => store.set('autoClearSearch', v));
 ipcMain.handle('get-font-size', () => store.get('fontSize') || 13);
-ipcMain.handle('set-font-size', (_event, size) => store.set('fontSize', size));
+ipcMain.handle('set-font-size', (_event, size) => { if (license.isPro()) store.set('fontSize', size); });
 ipcMain.handle('get-minimal-view', () => store.get('minimalView') || false);
-ipcMain.handle('set-minimal-view', (_event, v) => store.set('minimalView', v));
+ipcMain.handle('set-minimal-view', (_event, v) => { if (license.isPro()) store.set('minimalView', v); });
 ipcMain.handle('get-remember-position', () => store.get('rememberPosition') !== false);
 ipcMain.handle('set-remember-position', (_event, v) => store.set('rememberPosition', v));
 
 ipcMain.handle('set-auto-paste', (_event, enabled) => {
+  if (!license.isPro()) return 'pro-required';
   store.set('autoPaste', enabled);
 
   if (enabled) {
@@ -563,6 +582,13 @@ ipcMain.handle('set-auto-paste', (_event, enabled) => {
 
   return 'ok';
 });
+
+// ─── License ────────────────────────────────────────────────────────────────────
+
+ipcMain.handle('license:info', () => license.getLicenseInfo());
+ipcMain.handle('license:activate', (_event, key) => license.activateLicense(key));
+ipcMain.handle('license:deactivate', () => license.deactivateLicense());
+ipcMain.handle('license:isPro', () => license.isPro());
 
 // ─── App lifecycle ──────────────────────────────────────────────────────────────
 

@@ -32,6 +32,10 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   setRememberPosition: (v) => ipcRenderer.invoke('set-remember-position', v),
   getAutostart: () => ipcRenderer.invoke('get-autostart'),
   setAutostart: (v) => ipcRenderer.invoke('set-autostart', v),
+  getLicenseInfo: () => ipcRenderer.invoke('license:info'),
+  activateLicense: (key) => ipcRenderer.invoke('license:activate', key),
+  deactivateLicense: () => ipcRenderer.invoke('license:deactivate'),
+  isPro: () => ipcRenderer.invoke('license:isPro'),
   onHistoryUpdated: (callback) => {
     ipcRenderer.removeAllListeners('history-updated');
     ipcRenderer.on('history-updated', (_event, history) => callback(history));

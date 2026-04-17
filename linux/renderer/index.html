@@ -130,6 +130,32 @@
           </label>
         </div>
       </div>
+      <div class="settings-section" id="license-section">
+        <h3 class="settings-title">License</h3>
+        <div class="settings-row" id="license-status-row">
+          <span class="settings-label">Status</span>
+          <span class="settings-value" id="license-status">Free</span>
+        </div>
+        <div id="license-free-ui">
+          <div class="settings-row license-input-row">
+            <input type="text" id="license-input" placeholder="Paste license key..." spellcheck="false">
+          </div>
+          <div class="settings-row license-btn-row">
+            <button id="activate-btn" class="license-btn">Activate</button>
+            <button id="buy-btn" class="license-btn license-btn-primary">Buy Pro</button>
+          </div>
+          <div id="license-message" class="license-message" style="display:none"></div>
+        </div>
+        <div id="license-pro-ui" style="display:none">
+          <div class="settings-row">
+            <span class="settings-label">Email</span>
+            <span class="settings-value" id="license-email"></span>
+          </div>
+          <div class="settings-row">
+            <button id="deactivate-btn" class="license-btn">Deactivate</button>
+          </div>
+        </div>
+      </div>
       <div class="settings-section">
         <h3 class="settings-title">Keyboard Shortcuts</h3>
         <div class="settings-row"><span class="settings-label">Toggle window</span><button id="shortcut-recorder" class="settings-key shortcut-recorder">Ctrl+Shift+D</button></div>
@@ -144,7 +170,7 @@
         <div id="stats-content"></div>
       </div>
       <div class="settings-section settings-about">
-        <span class="settings-label">Clipmer v2.0.7</span>
+        <span class="settings-label">Clipmer v3.0.0</span>
         <button id="reset-settings-btn">Reset to defaults</button>
       </div>
     </div>
