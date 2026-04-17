@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     "auto paste",
   ],
   authors: [{ name: "Clipmer" }],
+  alternates: {
+    canonical: "https://clipmer.app",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -37,21 +40,12 @@ export const metadata: Metadata = {
     title: "Clipmer — Clipboard History Manager for Linux",
     description:
       "Clipboard history, search, pinned items and auto-paste — all in one lightweight Linux app.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Clipmer — Clipboard History Manager for Linux",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Clipmer — Clipboard History Manager for Linux",
     description:
       "Clipboard history, search, pinned items and auto-paste — all in one lightweight Linux app.",
-    images: ["/og-image.png"],
   },
   metadataBase: new URL("https://clipmer.app"),
 };
@@ -67,6 +61,29 @@ export default function RootLayout({
       className={`${ubuntu.variable} ${ubuntuMono.variable} dark antialiased`}
     >
       <body className="min-h-screen bg-background text-foreground">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "Clipmer",
+              description:
+                "Clipboard history, search, pinned items and auto-paste — all in one lightweight Linux app for Ubuntu, GNOME, and Wayland.",
+              applicationCategory: "UtilitiesApplication",
+              operatingSystem: "Linux",
+              url: "https://clipmer.app",
+              downloadUrl:
+                "https://github.com/0x99M/project-y/releases/latest",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+              license: "https://opensource.org/licenses/MIT",
+            }),
+          }}
+        />
         {children}
       </body>
     </html>
