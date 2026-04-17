@@ -89,79 +89,96 @@ export default function ProPage() {
         />
       </div>
 
-      <main className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 py-20 sm:py-28">
-        {/* ── Hero ── */}
+      <main className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-24">
+        {/* ── Hero: two-column ── */}
         <Reveal>
-          <div className="text-center mb-20">
-            <p className="text-sm font-medium text-orange mb-4 tracking-wide uppercase">
-              Clipmer Pro
-            </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-5 leading-[1.1]">
-              Pay once.
-              <br />
-              <span className="text-orange">Yours forever.</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
-              No subscription. No renewal emails. No seat count. Unlock
-              everything for less than a coffee.
-            </p>
-          </div>
-        </Reveal>
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-12 lg:items-center mb-14">
+            {/* Left column: copy */}
+            <div className="text-center lg:text-left">
+              <p className="text-sm font-medium text-orange mb-4 tracking-wide uppercase">
+                Clipmer Pro
+              </p>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-5 leading-[1.1]">
+                Pay once.
+                <br />
+                <span className="text-orange">Yours forever.</span>
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-md mx-auto lg:mx-0 leading-relaxed mb-8">
+                No subscription. No renewal emails. No seat count. Unlock
+                everything for less than a coffee.
+              </p>
 
-        {/* ── Highlights ── */}
-        <Reveal delay={0.1}>
-          <div className="flex flex-wrap justify-center gap-6 mb-20">
-            {highlights.map((h, i) => (
+              {/* Inline highlights */}
+              <ul className="flex flex-col gap-3 max-w-sm mx-auto lg:mx-0">
+                {highlights.map((h, i) => (
+                  <motion.li
+                    key={h.label}
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 + i * 0.08 }}
+                    className="flex items-center gap-2.5 text-sm text-muted-foreground"
+                  >
+                    <h.icon className="size-4 text-orange shrink-0" />
+                    {h.label}
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Right column: pricing card */}
+            <div className="w-full max-w-sm mx-auto lg:ml-auto lg:mr-0">
               <motion.div
-                key={h.label}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.15 + i * 0.08 }}
-                className="flex items-center gap-2 text-sm text-muted-foreground"
+                whileHover={{ y: -2, boxShadow: "0 20px 60px -15px rgba(233,84,32,0.15)" }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="rounded-2xl border border-border bg-card p-8 text-center transition-colors hover:border-orange/40"
               >
-                <h.icon className="size-4 text-orange" />
-                {h.label}
+                <p className="text-xs font-medium text-orange uppercase tracking-widest mb-4">
+                  Pro License &middot; One-time
+                </p>
+
+                <div className="flex items-baseline justify-center gap-1 mb-1">
+                  <span className="text-5xl font-bold tracking-tight">$9.00</span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-8">
+                  Less than one coffee. Forever.
+                </p>
+
+                <a
+                  href="https://buy.paddle.com/product/YOUR_PADDLE_PRODUCT_ID"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "w-full h-12 text-base bg-orange text-white hover:bg-orange-hover transition-colors"
+                  )}
+                >
+                  Get Clipmer Pro
+                </a>
+
+                <p className="text-xs text-muted-foreground/60 mt-4">
+                  Instant delivery &middot; All sales final
+                </p>
               </motion.div>
-            ))}
-          </div>
-        </Reveal>
 
-        {/* ── Pricing card ── */}
-        <Reveal delay={0.15}>
-          <div className="mx-auto max-w-sm mb-24">
-            <motion.div
-              whileHover={{ y: -2, boxShadow: "0 20px 60px -15px rgba(233,84,32,0.15)" }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="rounded-2xl border border-border bg-card p-8 text-center transition-colors hover:border-orange/40"
-            >
-              <p className="text-xs font-medium text-orange uppercase tracking-widest mb-4">
-                Pro License &middot; One-time
-              </p>
-
-              <div className="flex items-baseline justify-center gap-1 mb-1">
-                <span className="text-5xl font-bold tracking-tight">$9.00</span>
+              {/* Card footer links */}
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
+                <Link
+                  href="/#download"
+                  className="group inline-flex items-center gap-1 text-orange underline underline-offset-4 decoration-orange/30 hover:decoration-orange transition-colors"
+                >
+                  Download free version
+                  <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                </Link>
+                <a
+                  href="#resend"
+                  className="group inline-flex items-center gap-1 text-orange underline underline-offset-4 decoration-orange/30 hover:decoration-orange transition-colors"
+                >
+                  Already bought? Resend key
+                  <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
+                </a>
               </div>
-              <p className="text-sm text-muted-foreground mb-8">
-                Less than one coffee. Forever.
-              </p>
-
-              <a
-                href="https://buy.paddle.com/product/YOUR_PADDLE_PRODUCT_ID"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "w-full h-12 text-base bg-orange text-white hover:bg-orange-hover transition-colors"
-                )}
-              >
-                Get Clipmer Pro
-              </a>
-
-              <p className="text-xs text-muted-foreground/60 mt-4">
-                Instant delivery &middot; All sales final
-              </p>
-            </motion.div>
+            </div>
           </div>
         </Reveal>
 
@@ -222,7 +239,7 @@ export default function ProPage() {
 
         {/* ── Resend license ── */}
         <Reveal delay={0.1}>
-          <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-6 mb-24">
+          <div id="resend" className="mx-auto max-w-md rounded-xl border border-border bg-card p-6 mb-24 scroll-mt-20">
             <h3 className="font-semibold mb-1">Lost your license key?</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Enter your purchase email and we&apos;ll send it again.
