@@ -145,20 +145,21 @@ export default function ProPage() {
                   Less than one coffee. Forever.
                 </p>
 
-                <a
-                  href="https://buy.paddle.com/product/YOUR_PADDLE_PRODUCT_ID"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  disabled
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "w-full h-12 text-base bg-orange text-white hover:bg-orange-hover transition-colors"
+                    "relative w-full h-12 text-base bg-orange/30 text-white/80 cursor-not-allowed transition-colors"
                   )}
                 >
                   Get Clipmer Pro
-                </a>
+                  <span className="absolute -top-2 -right-2 rounded-md bg-orange text-white text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 shadow-md">
+                    Coming soon
+                  </span>
+                </button>
 
                 <p className="text-xs text-muted-foreground/60 mt-4">
-                  Instant delivery &middot; All sales final
+                  Available soon &middot; One-time payment
                 </p>
               </motion.div>
 
