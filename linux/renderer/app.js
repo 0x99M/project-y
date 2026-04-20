@@ -696,9 +696,9 @@ function handleKeyDown(e) {
     return;
   }
 
-  // In settings, only Escape closes it
+  // In settings, only Escape or Ctrl+, closes it
   if (settingsOpen) {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' || (e.ctrlKey && e.key === ',')) {
       e.preventDefault();
       document.getElementById('settings-btn').click();
     }
@@ -720,6 +720,20 @@ function handleKeyDown(e) {
     const entries = currentEntries();
     const entry = entries[selectedIndex];
     if (entry) openViewer(entry);
+    return;
+  }
+
+  // Ctrl+E: toggle expanded window size
+  if (e.ctrlKey && e.key.toLowerCase() === 'e') {
+    e.preventDefault();
+    document.getElementById('expand-btn').click();
+    return;
+  }
+
+  // Ctrl+,: toggle settings
+  if (e.ctrlKey && e.key === ',') {
+    e.preventDefault();
+    document.getElementById('settings-btn').click();
     return;
   }
 
