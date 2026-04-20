@@ -368,7 +368,6 @@ function applyProGating() {
     'auto-paste-toggle',
     'minimal-view-toggle',
     'accent-picker',
-    'font-size-slider',
     'shortcut-recorder',
   ];
 

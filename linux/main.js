@@ -563,7 +563,7 @@ ipcMain.handle('set-auto-scroll-top', (_event, v) => store.set('autoScrollTop', 
 ipcMain.handle('get-auto-clear-search', () => store.get('autoClearSearch') !== false);
 ipcMain.handle('set-auto-clear-search', (_event, v) => store.set('autoClearSearch', v));
 ipcMain.handle('get-font-size', () => store.get('fontSize') || 13);
-ipcMain.handle('set-font-size', (_event, size) => { if (license.isPro()) store.set('fontSize', size); });
+ipcMain.handle('set-font-size', (_event, size) => store.set('fontSize', size));
 ipcMain.handle('get-minimal-view', () => store.get('minimalView') || false);
 ipcMain.handle('set-minimal-view', (_event, v) => { if (license.isPro()) store.set('minimalView', v); });
 ipcMain.handle('get-remember-position', () => store.get('rememberPosition') !== false);
