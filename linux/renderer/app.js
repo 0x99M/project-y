@@ -7,6 +7,7 @@ let activeTab = 'history';
 let settingsOpen = false;
 let autoScrollTop = true;
 let autoClearSearch = true;
+let closeSettingsOnOpen = true;
 let proActive = false;
 
 const listEl = document.getElementById('history-list');
@@ -34,6 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const autoClearSearchToggle = document.getElementById('auto-clear-search-toggle');
   autoClearSearch = await window.clipboardManager.getAutoClearSearch();
   autoClearSearchToggle.checked = autoClearSearch;
+  const closeSettingsToggle = document.getElementById('close-settings-toggle');
+  closeSettingsOnOpen = await window.clipboardManager.getCloseSettingsOnOpen();
+  closeSettingsToggle.checked = closeSettingsOnOpen;
   const rememberPosToggle = document.getElementById('remember-position-toggle');
   rememberPosToggle.checked = await window.clipboardManager.getRememberPosition();
   const minimalToggle = document.getElementById('minimal-view-toggle');
@@ -173,6 +177,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.clipboardManager.setAutoClearSearch(autoClearSearch);
   });
 
+  // Close-settings-on-open toggle
+  closeSettingsToggle.addEventListener('change', () => {
+    closeSettingsOnOpen = closeSettingsToggle.checked;
+    window.clipboardManager.setCloseSettingsOnOpen(closeSettingsOnOpen);
+  });
+
   // Remember position toggle
   rememberPosToggle.addEventListener('change', () => {
     window.clipboardManager.setRememberPosition(rememberPosToggle.checked);
@@ -180,7 +190,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Apply settings when window becomes visible
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && !settingsOpen) {
+    if (document.visibilityState !== 'visible') return;
+
+    // Close settings view if the user enabled that behavior
+    if (settingsOpen && closeSettingsOnOpen) {
+      document.getElementById('settings-btn').click();
+    }
+
+    if (!settingsOpen) {
       if (autoClearSearch) {
         searchEl.value = '';
       }
@@ -293,6 +310,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('font-size-value').textContent = '13px';
     window.clipboardManager.setAutoScrollTop(true);
     window.clipboardManager.setAutoClearSearch(true);
+    window.clipboardManager.setCloseSettingsOnOpen(true);
+    closeSettingsOnOpen = true;
+    closeSettingsToggle.checked = true;
     window.clipboardManager.setFontSize(13);
   });
 
