@@ -63,6 +63,13 @@
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
+      <div id="settings-tabs">
+        <button class="settings-tab active" data-settings-tab="general">General</button>
+        <button class="settings-tab" data-settings-tab="appearance">Appearance</button>
+        <button class="settings-tab" data-settings-tab="shortcuts">Shortcuts</button>
+        <button class="settings-tab" data-settings-tab="license">License</button>
+      </div>
+      <div class="settings-pane" data-pane="appearance">
       <div class="settings-section">
         <h3 class="settings-title">Appearance</h3>
         <div class="settings-row">
@@ -91,6 +98,8 @@
           </div>
         </div>
       </div>
+      </div>
+      <div class="settings-pane active" data-pane="general">
       <div class="settings-section">
         <h3 class="settings-title">Behavior</h3>
         <div class="settings-row">
@@ -137,6 +146,8 @@
           </label>
         </div>
       </div>
+      </div>
+      <div class="settings-pane" data-pane="license">
       <div class="settings-section" id="license-section">
         <h3 class="settings-title">License</h3>
         <div class="settings-row" id="license-status-row">
@@ -164,6 +175,16 @@
         </div>
       </div>
       <div class="settings-section">
+        <h3 class="settings-title">Statistics</h3>
+        <div id="stats-content"></div>
+      </div>
+      <div class="settings-section settings-about">
+        <span class="settings-label">Clipmer v3.0.0</span>
+        <button id="reset-settings-btn">Reset to defaults</button>
+      </div>
+      </div>
+      <div class="settings-pane" data-pane="shortcuts">
+      <div class="settings-section">
         <h3 class="settings-title">Keyboard Shortcuts</h3>
         <div class="settings-row"><span class="settings-label">Toggle window</span><button id="shortcut-recorder" class="settings-key shortcut-recorder">Ctrl+Shift+D</button></div>
         <div class="settings-row"><span class="settings-label">Navigate entries</span><kbd class="settings-key">&uarr; &darr;</kbd></div>
@@ -174,14 +195,9 @@
         <div class="settings-row"><span class="settings-label">View full content</span><kbd class="settings-key">Space</kbd></div>
         <div class="settings-row"><span class="settings-label">Expand window</span><kbd class="settings-key">Ctrl+E</kbd></div>
         <div class="settings-row"><span class="settings-label">Open settings</span><kbd class="settings-key">Ctrl+,</kbd></div>
+        <div class="settings-row"><span class="settings-label">Next settings tab</span><kbd class="settings-key">Tab</kbd></div>
+        <div class="settings-row"><span class="settings-label">Previous settings tab</span><kbd class="settings-key">Shift+Tab</kbd></div>
       </div>
-      <div class="settings-section">
-        <h3 class="settings-title">Statistics</h3>
-        <div id="stats-content"></div>
-      </div>
-      <div class="settings-section settings-about">
-        <span class="settings-label">Clipmer v3.0.0</span>
-        <button id="reset-settings-btn">Reset to defaults</button>
       </div>
     </div>
     <div id="footer">

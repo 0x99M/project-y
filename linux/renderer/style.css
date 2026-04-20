@@ -611,12 +611,77 @@ body.expanded .entry-image-preview {
 
 #settings-view {
   flex: 1;
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+#settings-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 10px 16px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.settings-tab {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  font-size: var(--font-size-label);
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+}
+
+.settings-tab:hover {
+  color: var(--text-primary);
+}
+
+.settings-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.settings-pane {
+  display: none;
   overflow-y: auto;
   padding: 16px;
+  flex: 1;
+}
+
+.settings-pane.active {
+  display: block;
+}
+
+.settings-pane::-webkit-scrollbar {
+  width: 6px;
+}
+
+.settings-pane::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.settings-pane::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+.settings-pane::-webkit-scrollbar-thumb:hover {
+  background: var(--border-input);
 }
 
 .settings-section {
   margin-bottom: 20px;
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
 }
 
 .settings-title {

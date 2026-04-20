@@ -135,6 +135,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('settings-btn').click();
   });
 
+  // Settings tab switching
+  document.querySelectorAll('.settings-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.settingsTab;
+      document.querySelectorAll('.settings-tab').forEach((t) => t.classList.toggle('active', t === tab));
+      document.querySelectorAll('.settings-pane').forEach((p) => p.classList.toggle('active', p.dataset.pane === target));
+    });
+  });
+
   // Minimal view toggle
   minimalToggle.addEventListener('change', () => {
     document.body.classList.toggle('minimal', minimalToggle.checked);
@@ -438,14 +447,9 @@ function applyProGating() {
     }
   }
 
-  // Search bar
-  if (!proActive) {
-    searchEl.disabled = true;
-    searchEl.placeholder = 'Search (Pro)';
-  } else {
-    searchEl.disabled = false;
-    searchEl.placeholder = 'Search clipboard...';
-  }
+  // Search bar (free tier)
+  searchEl.disabled = false;
+  searchEl.placeholder = 'Search clipboard...';
 }
 
 // ─── Theme ──────────────────────────────────────────────────────────────────────
@@ -696,11 +700,22 @@ function handleKeyDown(e) {
     return;
   }
 
-  // In settings, only Escape or Ctrl+, closes it
+  // In settings
   if (settingsOpen) {
     if (e.key === 'Escape' || (e.ctrlKey && e.key === ',')) {
       e.preventDefault();
       document.getElementById('settings-btn').click();
+      return;
+    }
+    // Tab / Shift+Tab cycles through settings tabs
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const tabs = Array.from(document.querySelectorAll('.settings-tab'));
+      const currentIdx = tabs.findIndex((t) => t.classList.contains('active'));
+      const nextIdx = e.shiftKey
+        ? (currentIdx - 1 + tabs.length) % tabs.length
+        : (currentIdx + 1) % tabs.length;
+      tabs[nextIdx].click();
     }
     return;
   }
