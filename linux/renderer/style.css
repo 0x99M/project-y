@@ -896,10 +896,10 @@ body.expanded .entry-image-preview {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  padding: 1px 5px;
+  padding: 2px 6px;
   border-radius: 4px;
-  background: var(--accent-muted);
-  color: var(--accent);
+  background: var(--accent);
+  color: var(--text-primary);
   margin-left: 6px;
   vertical-align: middle;
 }

@@ -424,8 +424,15 @@ function applyProGating() {
   if (pinnedTab) {
     if (!proActive) {
       pinnedTab.classList.add('pro-locked');
+      if (!pinnedTab.querySelector('.pro-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'pro-badge';
+        badge.textContent = 'PRO';
+        pinnedTab.appendChild(badge);
+      }
     } else {
       pinnedTab.classList.remove('pro-locked');
+      pinnedTab.querySelector('.pro-badge')?.remove();
     }
   }
 
