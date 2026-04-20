@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Check, X, Zap, Shield, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { Footer } from "@/components/sections/footer";
 
 const features = [
   { name: "Clipboard history", free: "25 text entries", pro: "200 entries, text + images" },
@@ -336,15 +337,7 @@ export default function ProPage() {
         </Reveal>
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-border/50 py-6">
-        <div className="mx-auto max-w-4xl px-6 flex flex-wrap gap-4 justify-center text-xs text-muted-foreground">
-          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-          <Link href="/refund" className="hover:text-foreground transition-colors">Refunds</Link>
-          <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

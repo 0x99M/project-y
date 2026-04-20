@@ -322,7 +322,7 @@ const steps = [
 export function HowItWorks() {
   return (
     <section className="relative py-24 lg:py-32" id="how-it-works">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <FadeUp>
           <div className="text-center mb-16 lg:mb-24">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">

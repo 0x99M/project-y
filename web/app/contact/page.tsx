@@ -10,7 +10,7 @@ export default function ContactPage() {
     <LegalLayout title="Contact">
       <p>
         We&apos;re a small team and respond to all emails within{" "}
-        <strong>2 business days</strong>.
+        <strong>one week</strong>.
       </p>
 
       <h2>Support</h2>
@@ -27,12 +27,6 @@ export default function ContactPage() {
       <p>
         Please note that all sales are final. See our{" "}
         <a href="/refund">refund policy</a> for details.
-      </p>
-
-      <h2>Privacy</h2>
-      <p>
-        For privacy or data deletion requests:{" "}
-        <a href="mailto:privacy@clipmer.app">privacy@clipmer.app</a>
       </p>
 
       <h2>Bug Reports</h2>

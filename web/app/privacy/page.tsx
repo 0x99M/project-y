@@ -49,14 +49,14 @@ export default function PrivacyPage() {
       <h2>Data Deletion</h2>
       <p>
         To delete your local clipboard data, uninstall Clipmer or delete the{" "}
-        <code>~/.config/clipmer/</code> directory. To request deletion of your
-        email from our records, contact us at the address below.
+        <code>~/.config/clipmer/</code> directory. We don&apos;t store any
+        customer data on our end — there&apos;s nothing for us to delete.
       </p>
 
       <h2>Contact</h2>
       <p>
         For privacy-related questions:{" "}
-        <a href="mailto:privacy@clipmer.app">privacy@clipmer.app</a>
+        <a href="mailto:support@clipmer.app">support@clipmer.app</a>
       </p>
     </LegalLayout>
   );
