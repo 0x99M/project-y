@@ -14,7 +14,7 @@ const features = [
   { name: "Smart search", free: false, pro: true },
   { name: "Auto-paste (Wayland)", free: false, pro: true },
   { name: "Dark & light themes", free: "Dark only", pro: "Both + accent color" },
-  { name: "Font size", free: "Default", pro: "10–18px slider" },
+  { name: "Adjustable font size", free: true, pro: true },
   { name: "Minimal view", free: false, pro: true },
   { name: "Custom shortcut", free: "Default only", pro: "Configurable" },
   { name: "Keyboard navigation", free: true, pro: true },
