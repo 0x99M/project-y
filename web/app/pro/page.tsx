@@ -11,7 +11,7 @@ const features = [
   { name: "Clipboard history", free: "25 text entries", pro: "200 entries, text + images" },
   { name: "Pinned items", free: false, pro: true },
   { name: "Inline notes", free: false, pro: true },
-  { name: "Smart search", free: false, pro: true },
+  { name: "Smart search", free: "Content only", pro: "Content + notes" },
   { name: "Auto-paste (Wayland)", free: false, pro: true },
   { name: "Dark & light themes", free: "Dark only", pro: "Both + accent color" },
   { name: "Adjustable font size", free: true, pro: true },
