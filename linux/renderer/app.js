@@ -9,6 +9,8 @@ let autoScrollTop = true;
 let autoClearSearch = true;
 let closeSettingsOnOpen = true;
 let proActive = false;
+let viewerOpen = false;
+let viewerEntry = null;
 
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
@@ -556,6 +558,17 @@ function render(entries) {
     body.appendChild(noteInput);
     row.appendChild(body);
 
+    // View full content button
+    const viewBtn = document.createElement('button');
+    viewBtn.className = 'view-btn';
+    viewBtn.title = 'View full content (Space)';
+    viewBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    viewBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openViewer(entry);
+    });
+    row.appendChild(viewBtn);
+
     // Pin/unpin button (pro only)
     const isPinned = pinnedIds.has(entry.id);
     const pinBtn = document.createElement('button');
@@ -576,6 +589,7 @@ function render(entries) {
     row.addEventListener('click', (e) => {
       if (e.target.classList.contains('note-input')) return;
       if (e.target.classList.contains('pin-btn')) return;
+      if (e.target.closest('.view-btn')) return;
       selectEntry(i);
     });
 
@@ -673,6 +687,15 @@ function updateSearchModeIndicator() {
 // ─── Keyboard navigation ────────────────────────────────────────────────────────
 
 function handleKeyDown(e) {
+  // If viewer is open, Escape closes it (everything else ignored)
+  if (viewerOpen) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeViewer();
+    }
+    return;
+  }
+
   // In settings, only Escape closes it
   if (settingsOpen) {
     if (e.key === 'Escape') {
@@ -688,6 +711,15 @@ function handleKeyDown(e) {
       e.preventDefault();
       document.activeElement.blur();
     }
+    return;
+  }
+
+  // Space: view full content of selected entry (but only if search isn't focused with content)
+  if (e.key === ' ' && selectedIndex >= 0 && document.activeElement !== searchEl) {
+    e.preventDefault();
+    const entries = currentEntries();
+    const entry = entries[selectedIndex];
+    if (entry) openViewer(entry);
     return;
   }
 
@@ -772,3 +804,49 @@ function debounce(fn, ms) {
     timer = setTimeout(() => fn(...args), ms);
   };
 }
+
+// ─── Full-content viewer ────────────────────────────────────────────────────────
+
+function openViewer(entry) {
+  viewerEntry = entry;
+  viewerOpen = true;
+
+  const overlay = document.getElementById('viewer-overlay');
+  const body = document.getElementById('viewer-body');
+  const title = document.getElementById('viewer-title');
+  const meta = document.getElementById('viewer-meta');
+
+  if (entry.type === 'image') {
+    title.textContent = 'Image';
+    body.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = entry.content;
+    body.appendChild(img);
+    meta.textContent = '';
+  } else {
+    title.textContent = 'Full content';
+    body.textContent = entry.content;
+    const chars = entry.content.length;
+    const lines = entry.content.split('\n').length;
+    meta.textContent = `${chars.toLocaleString()} chars · ${lines} line${lines === 1 ? '' : 's'}`;
+  }
+
+  overlay.style.display = 'flex';
+}
+
+function closeViewer() {
+  viewerOpen = false;
+  viewerEntry = null;
+  document.getElementById('viewer-overlay').style.display = 'none';
+}
+
+// Wire up viewer controls (elements exist since script is at end of body)
+document.getElementById('viewer-close').addEventListener('click', closeViewer);
+document.getElementById('viewer-backdrop').addEventListener('click', closeViewer);
+document.getElementById('viewer-copy').addEventListener('click', () => {
+  if (viewerEntry) {
+    window.clipboardManager.copyToClipboard(viewerEntry);
+    closeViewer();
+    window.clipboardManager.hideWindow();
+  }
+});
