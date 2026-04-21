@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Check, X, Zap, Shield, Lock } from "lucide-react";
+import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Footer } from "@/components/sections/footer";
+
+const PADDLE_CLIENT_TOKEN = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
+const PADDLE_PRICE_ID = process.env.NEXT_PUBLIC_PADDLE_PRICE_ID;
+const PADDLE_ENV = (process.env.NEXT_PUBLIC_PADDLE_ENV || "sandbox") as
+  | "sandbox"
+  | "production";
 
 const features = [
   { name: "Clipboard history", free: "25 text entries", pro: "200 entries, text + images" },
@@ -63,6 +70,36 @@ export default function ProPage() {
   const [resendStatus, setResendStatus] = useState<
     "idle" | "sending" | "sent" | "error"
   >("idle");
+  const paddleRef = useRef<Paddle | null>(null);
+  const paddleReady = PADDLE_CLIENT_TOKEN && PADDLE_PRICE_ID;
+
+  useEffect(() => {
+    if (!paddleReady) return;
+    initializePaddle({
+      environment: PADDLE_ENV,
+      token: PADDLE_CLIENT_TOKEN!,
+      checkout: {
+        settings: {
+          theme: "dark",
+          variant: "one-page",
+        },
+      },
+    }).then((p) => {
+      if (p) paddleRef.current = p;
+    });
+  }, [paddleReady]);
+
+  const openCheckout = () => {
+    if (!paddleRef.current || !PADDLE_PRICE_ID) return;
+    paddleRef.current.Checkout.open({
+      items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
+      settings: {
+        theme: "dark",
+        variant: "one-page",
+        successUrl: `${window.location.origin}/thank-you`,
+      },
+    });
+  };
 
   const handleResend = async () => {
     if (!resendEmail.includes("@")) return;
@@ -145,21 +182,35 @@ export default function ProPage() {
                   Less than one coffee. Forever.
                 </p>
 
-                <button
-                  disabled
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "relative w-full h-12 text-base bg-orange/30 text-white/80 cursor-not-allowed transition-colors"
-                  )}
-                >
-                  Get Clipmer Pro
-                  <span className="absolute -top-2 -right-2 rounded-md bg-orange text-white text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 shadow-md">
-                    Coming soon
-                  </span>
-                </button>
+                {paddleReady ? (
+                  <button
+                    onClick={openCheckout}
+                    className={cn(
+                      buttonVariants({ size: "lg" }),
+                      "w-full h-12 text-base bg-orange text-white hover:bg-orange-hover cursor-pointer transition-colors"
+                    )}
+                  >
+                    Get Clipmer Pro
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className={cn(
+                      buttonVariants({ size: "lg" }),
+                      "relative w-full h-12 text-base bg-orange/30 text-white/80 cursor-not-allowed transition-colors"
+                    )}
+                  >
+                    Get Clipmer Pro
+                    <span className="absolute -top-2 -right-2 rounded-md bg-orange text-white text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 shadow-md">
+                      Coming soon
+                    </span>
+                  </button>
+                )}
 
                 <p className="text-xs text-muted-foreground/60 mt-4">
-                  Available soon &middot; One-time payment
+                  {paddleReady
+                    ? "Instant delivery · One-time payment"
+                    : "Available soon · One-time payment"}
                 </p>
               </motion.div>
 
