@@ -565,7 +565,7 @@ function render(entries) {
     // View full content button
     const viewBtn = document.createElement('button');
     viewBtn.className = 'view-btn';
-    viewBtn.title = 'View full content (Space)';
+    viewBtn.title = 'View full content (Shift+Enter)';
     viewBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
     viewBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -729,8 +729,8 @@ function handleKeyDown(e) {
     return;
   }
 
-  // Space: view full content of selected entry (but only if search isn't focused with content)
-  if (e.key === ' ' && selectedIndex >= 0 && document.activeElement !== searchEl) {
+  // Shift+Enter: view full content of the selected entry
+  if (e.key === 'Enter' && e.shiftKey && selectedIndex >= 0) {
     e.preventDefault();
     const entries = currentEntries();
     const entry = entries[selectedIndex];
@@ -776,6 +776,7 @@ function handleKeyDown(e) {
       break;
 
     case 'Enter':
+      if (e.shiftKey) break; // handled above (open viewer)
       if (selectedIndex >= 0) {
         e.preventDefault();
         selectEntry(selectedIndex);
