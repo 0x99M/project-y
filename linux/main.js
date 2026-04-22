@@ -207,13 +207,40 @@ function checkClipboard() {
 }
 
 function addEntry(type, content, preview) {
+  // If the exact content is already pinned, bubble it to the top of the pinned
+  // list and refresh its timestamp. Don't add it to history.
+  const pinnedIdx = pinnedEntries.findIndex(
+    (e) => e.type === type && e.content === content
+  );
+  if (pinnedIdx !== -1) {
+    const [existing] = pinnedEntries.splice(pinnedIdx, 1);
+    existing.timestamp = Date.now();
+    pinnedEntries.unshift(existing);
+    store.set('pinned', pinnedEntries);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('pinned-updated', pinnedEntries);
+    }
+    return;
+  }
+
+  // If the exact content already exists in history, remove the old instance
+  // so the fresh copy moves to the top. Preserve its note if one was added.
+  let preservedNote = '';
+  const existingIdx = clipboardHistory.findIndex(
+    (e) => e.type === type && e.content === content
+  );
+  if (existingIdx !== -1) {
+    preservedNote = clipboardHistory[existingIdx].note || '';
+    clipboardHistory.splice(existingIdx, 1);
+  }
+
   const entry = {
     id: crypto.randomUUID(),
     type,
     content,
     preview,
     timestamp: Date.now(),
-    note: '',
+    note: preservedNote,
   };
 
   clipboardHistory.unshift(entry);
