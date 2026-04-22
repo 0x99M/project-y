@@ -87,6 +87,27 @@ body {
 
 /* ─── Minimal view ──────────────────────────────────────────────────────────── */
 
+/* Drag strip — only visible in minimal mode; hidden otherwise since the header
+   provides a drag region there. */
+#drag-strip {
+  display: none;
+}
+
+body.minimal #drag-strip {
+  display: block;
+  height: 8px;
+  -webkit-app-region: drag;
+  cursor: grab;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+body.minimal #drag-strip:active {
+  cursor: grabbing;
+}
+
 body.minimal #header {
   display: none;
 }
@@ -100,7 +121,6 @@ body.minimal #footer {
 }
 
 body.minimal #search-bar {
-  border-radius: 10px 10px 0 0;
   -webkit-app-region: drag;
 }
 
