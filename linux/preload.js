@@ -8,9 +8,10 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   simulatePaste: () => ipcRenderer.invoke('simulate-paste'),
   updateNote: ({ id, note }) => ipcRenderer.invoke('update-note', { id, note }),
   toggleExpand: () => ipcRenderer.invoke('toggle-expand'),
-  getPinned: () => ipcRenderer.invoke('get-pinned'),
-  pinEntry: (id) => ipcRenderer.invoke('pin-entry', id),
-  unpinEntry: (id) => ipcRenderer.invoke('unpin-entry', id),
+  getGroups: () => ipcRenderer.invoke('get-groups'),
+  createGroup: (name) => ipcRenderer.invoke('create-group', name),
+  renameGroup: ({ id, name }) => ipcRenderer.invoke('rename-group', { id, name }),
+  deleteGroup: (id) => ipcRenderer.invoke('delete-group', id),
   getStats: () => ipcRenderer.invoke('get-stats'),
   getTheme: () => ipcRenderer.invoke('get-theme'),
   setTheme: (theme) => ipcRenderer.invoke('set-theme', theme),
@@ -42,8 +43,8 @@ contextBridge.exposeInMainWorld('clipboardManager', {
     ipcRenderer.removeAllListeners('history-updated');
     ipcRenderer.on('history-updated', (_event, history) => callback(history));
   },
-  onPinnedUpdated: (callback) => {
-    ipcRenderer.removeAllListeners('pinned-updated');
-    ipcRenderer.on('pinned-updated', (_event, pinned) => callback(pinned));
+  onGroupsUpdated: (callback) => {
+    ipcRenderer.removeAllListeners('groups-updated');
+    ipcRenderer.on('groups-updated', (_event, groups) => callback(groups));
   },
 });

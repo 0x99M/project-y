@@ -37,7 +37,7 @@
     </div>
     <div id="tab-bar">
       <button class="tab active" data-tab="history">History</button>
-      <button class="tab" data-tab="pinned">Pinned</button>
+      <button class="tab" data-tab="folders">Folders</button>
     </div>
     <div id="search-bar">
       <svg id="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -179,6 +179,16 @@
         <h3 class="settings-title">Statistics</h3>
         <div id="stats-content"></div>
       </div>
+      <div class="settings-section danger-zone">
+        <h3 class="settings-title danger-title">Danger zone</h3>
+        <div class="settings-row">
+          <span class="settings-label">
+            <span class="danger-label">Clear history</span>
+            <span class="settings-hint">Removes all clipboard entries from History. This can't be undone.</span>
+          </span>
+          <button id="clear-all" class="danger-btn">Clear</button>
+        </div>
+      </div>
       <div class="settings-section settings-about">
         <span class="settings-label">Clipmer v3.0.0</span>
         <button id="reset-settings-btn">Reset to defaults</button>
@@ -203,7 +213,6 @@
     </div>
     <div id="footer">
       <span id="footer-hint">&#8593;&#8595; navigate &middot; &#8629; select &middot; esc close</span>
-      <button id="clear-all">Clear</button>
     </div>
   </div>
     <button id="minimal-settings-btn" title="Settings">

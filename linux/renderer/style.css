@@ -564,34 +564,178 @@ body.expanded .entry-image-preview {
   color: var(--text-muted);
 }
 
-/* ─── Pin button ────────────────────────────────────────────────────────────── */
+/* ─── Folders view ───────────────────────────────────────────────────────── */
 
-.pin-btn {
+.folders-upgrade {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 12px;
+}
+
+.folders-upgrade-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--accent-muted);
+  color: var(--accent);
+}
+
+.folders-upgrade-title {
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.folders-upgrade-body {
+  color: var(--text-secondary);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.folders-upgrade-btn {
+  margin-top: 8px;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.folders-upgrade-btn:hover {
+  background: var(--accent-hover);
+}
+
+.folder-create-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: none;
+  border: 1px dashed var(--border-default);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.folder-create-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
+.folder-empty {
+  padding: 16px 12px;
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  text-align: center;
+}
+
+.folder-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.folder-row:hover {
+  background: var(--border-subtle);
+}
+
+.folder-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.folder-name {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.folder-row:hover .folder-actions,
+.folder-row:focus-within .folder-actions {
+  opacity: 1;
+}
+
+.folder-action-btn {
   background: none;
   border: none;
-  color: var(--text-muted);
-  cursor: pointer;
   width: 24px;
   height: 24px;
   padding: 0;
-  font-size: 18px;
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  align-self: flex-start;
+  color: var(--text-muted);
+  cursor: pointer;
   border-radius: 4px;
   transition: color 150ms ease, background 150ms ease;
 }
 
-.pin-btn:hover {
+.folder-action-btn:hover {
   background: var(--surface-input);
   color: var(--accent);
 }
 
-.pin-btn.pinned {
-  color: var(--accent);
+.folder-action-btn.folder-action-danger:hover {
+  color: #f87171;
+}
+
+.folder-inline-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--surface-input);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-label);
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 2px;
+}
+
+.folder-rename-input {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: var(--font-size-label);
 }
 
 /* ─── Settings button ───────────────────────────────────────────────────────── */
@@ -776,6 +920,57 @@ body.expanded .entry-image-preview {
 #reset-settings-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+/* ─── Danger zone ──────────────────────────────────────────────────────────── */
+
+.danger-zone .danger-title {
+  color: #f87171;
+  border-bottom-color: rgba(248, 113, 113, 0.25);
+}
+
+.danger-zone .settings-row {
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.danger-zone .settings-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.danger-zone .danger-label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.danger-zone .settings-hint {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.danger-btn {
+  padding: 6px 14px;
+  background: none;
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.danger-btn:hover {
+  color: #fff;
+  background: #f87171;
+  border-color: #f87171;
 }
 
 /* ─── Theme toggle ──────────────────────────────────────────────────────────── */

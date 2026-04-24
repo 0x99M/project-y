@@ -22,7 +22,7 @@ const store = new Store({
   name: 'clipmer-data',
   defaults: {
     history: [],
-    pinned: [],
+    groups: [],
     theme: 'dark',
     accentColor: '#E95420',
     shortcut: 'Ctrl+Shift+D',
@@ -44,7 +44,7 @@ license.init(store);
 let mainWindow = null;
 let tray = null;
 let clipboardHistory = [];
-let pinnedEntries = [];
+let groups = [];
 let lastClipboardText = '';
 let lastClipboardImageB64 = '';
 let pollingInterval = null;
@@ -207,31 +207,20 @@ function checkClipboard() {
 }
 
 function addEntry(type, content, preview) {
-  // If the exact content is already pinned, bubble it to the top of the pinned
-  // list and refresh its timestamp. Don't add it to history.
-  const pinnedIdx = pinnedEntries.findIndex(
-    (e) => e.type === type && e.content === content
-  );
-  if (pinnedIdx !== -1) {
-    const [existing] = pinnedEntries.splice(pinnedIdx, 1);
-    existing.timestamp = Date.now();
-    pinnedEntries.unshift(existing);
-    store.set('pinned', pinnedEntries);
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('pinned-updated', pinnedEntries);
-    }
-    return;
-  }
-
-  // If the exact content already exists in history, remove the old instance
-  // so the fresh copy moves to the top. Preserve its note if one was added.
-  let preservedNote = '';
+  // If the exact content already exists in history, bubble it to the top and
+  // refresh its timestamp. Reuse the same id so any group memberships stay valid.
   const existingIdx = clipboardHistory.findIndex(
     (e) => e.type === type && e.content === content
   );
   if (existingIdx !== -1) {
-    preservedNote = clipboardHistory[existingIdx].note || '';
-    clipboardHistory.splice(existingIdx, 1);
+    const [existing] = clipboardHistory.splice(existingIdx, 1);
+    existing.timestamp = Date.now();
+    clipboardHistory.unshift(existing);
+    store.set('history', clipboardHistory);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('history-updated', getVisibleHistory());
+    }
+    return;
   }
 
   const entry = {
@@ -240,11 +229,21 @@ function addEntry(type, content, preview) {
     content,
     preview,
     timestamp: Date.now(),
-    note: preservedNote,
+    note: '',
   };
 
   clipboardHistory.unshift(entry);
-  clipboardHistory = clipboardHistory.slice(0, MAX_HISTORY);
+
+  // When capping history, don't drop entries that are referenced by any group.
+  if (clipboardHistory.length > MAX_HISTORY) {
+    const memberIds = new Set(groups.flatMap((g) => g.memberIds));
+    const kept = [];
+    for (const e of clipboardHistory) {
+      if (kept.length < MAX_HISTORY || memberIds.has(e.id)) kept.push(e);
+    }
+    clipboardHistory = kept;
+  }
+
   store.set('history', clipboardHistory);
 
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -253,10 +252,13 @@ function addEntry(type, content, preview) {
 }
 
 function clearHistory() {
-  clipboardHistory = [];
-  store.set('history', []);
+  // Keep entries that are referenced by any group (they were intentionally
+  // saved). Everything else is wiped.
+  const memberIds = new Set(groups.flatMap((g) => g.memberIds));
+  clipboardHistory = clipboardHistory.filter((e) => memberIds.has(e.id));
+  store.set('history', clipboardHistory);
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('history-updated', []);
+    mainWindow.webContents.send('history-updated', getVisibleHistory());
   }
 }
 
@@ -309,64 +311,85 @@ ipcMain.handle('simulate-paste', () => {
 
 ipcMain.handle('update-note', (_event, { id, note }) => {
   if (!license.isPro()) return;
-  const entry = clipboardHistory.find((e) => e.id === id)
-    || pinnedEntries.find((e) => e.id === id);
+  const entry = clipboardHistory.find((e) => e.id === id);
   if (entry) {
     entry.note = note;
     store.set('history', clipboardHistory);
-    store.set('pinned', pinnedEntries);
   }
 });
 
-ipcMain.handle('get-pinned', () => {
-  if (!license.isPro()) return [];
-  return pinnedEntries;
+// ─── Groups ─────────────────────────────────────────────────────────────────────
+
+function emitGroupsUpdated() {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('groups-updated', groups);
+  }
+}
+
+ipcMain.handle('get-groups', () => groups);
+
+ipcMain.handle('create-group', (_event, name) => {
+  if (!license.isPro()) return { success: false, error: 'Pro required' };
+  const trimmed = (name || '').trim();
+  if (!trimmed) return { success: false, error: 'Name required' };
+  if (groups.some((g) => g.name.toLowerCase() === trimmed.toLowerCase())) {
+    return { success: false, error: 'A group with this name already exists' };
+  }
+  const newGroup = {
+    id: crypto.randomUUID(),
+    name: trimmed,
+    memberIds: [],
+    createdAt: Date.now(),
+  };
+  groups.push(newGroup);
+  store.set('groups', groups);
+  emitGroupsUpdated();
+  return { success: true, id: newGroup.id };
 });
 
-ipcMain.handle('pin-entry', (_event, id) => {
-  if (!license.isPro()) return;
-  const idx = clipboardHistory.findIndex((e) => e.id === id);
-  if (idx === -1) return;
-  const [entry] = clipboardHistory.splice(idx, 1);
-  if (pinnedEntries.length >= MAX_HISTORY) pinnedEntries.pop();
-  pinnedEntries.unshift(entry);
-  store.set('history', clipboardHistory);
-  store.set('pinned', pinnedEntries);
-  mainWindow?.webContents.send('history-updated', getVisibleHistory());
-  mainWindow?.webContents.send('pinned-updated', pinnedEntries);
+ipcMain.handle('rename-group', (_event, { id, name }) => {
+  if (!license.isPro()) return { success: false };
+  const group = groups.find((g) => g.id === id);
+  if (!group) return { success: false };
+  const trimmed = (name || '').trim();
+  if (!trimmed) return { success: false };
+  if (groups.some((g) => g.id !== id && g.name.toLowerCase() === trimmed.toLowerCase())) {
+    return { success: false, error: 'A group with this name already exists' };
+  }
+  group.name = trimmed;
+  store.set('groups', groups);
+  emitGroupsUpdated();
+  return { success: true };
 });
 
-ipcMain.handle('unpin-entry', (_event, id) => {
-  if (!license.isPro()) return;
-  const idx = pinnedEntries.findIndex((e) => e.id === id);
-  if (idx === -1) return;
-  const [entry] = pinnedEntries.splice(idx, 1);
-  clipboardHistory.unshift(entry);
-  if (clipboardHistory.length > MAX_HISTORY) clipboardHistory.pop();
-  store.set('history', clipboardHistory);
-  store.set('pinned', pinnedEntries);
-  mainWindow?.webContents.send('history-updated', getVisibleHistory());
-  mainWindow?.webContents.send('pinned-updated', pinnedEntries);
+ipcMain.handle('delete-group', (_event, id) => {
+  if (!license.isPro()) return { success: false };
+  const idx = groups.findIndex((g) => g.id === id);
+  if (idx === -1) return { success: false };
+  groups.splice(idx, 1);
+  store.set('groups', groups);
+  emitGroupsUpdated();
+  return { success: true };
 });
 
 ipcMain.handle('get-stats', () => {
   const historyTexts = clipboardHistory.filter((e) => e.type === 'text').length;
   const historyImages = clipboardHistory.filter((e) => e.type === 'image').length;
   const historyNotes = clipboardHistory.filter((e) => e.note).length;
-  const pinnedCount = pinnedEntries.length;
-  const pinnedNotes = pinnedEntries.filter((e) => e.note).length;
+  const totalGroups = groups.length;
+  const groupedEntries = new Set(groups.flatMap((g) => g.memberIds)).size;
 
   const historyJson = JSON.stringify(clipboardHistory);
-  const pinnedJson = JSON.stringify(pinnedEntries);
-  const totalBytes = Buffer.byteLength(historyJson) + Buffer.byteLength(pinnedJson);
+  const groupsJson = JSON.stringify(groups);
+  const totalBytes = Buffer.byteLength(historyJson) + Buffer.byteLength(groupsJson);
 
   return {
     historyTotal: clipboardHistory.length,
     historyTexts,
     historyImages,
     historyNotes,
-    pinnedCount,
-    pinnedNotes,
+    totalGroups,
+    groupedEntries,
     totalBytes,
   };
 });
@@ -626,13 +649,38 @@ app.whenReady().then(() => {
   // Write PID file for SIGUSR1-based toggle
   fs.writeFileSync(PID_FILE, String(process.pid));
 
-  // Load persisted history and pinned
+  // Load persisted history and groups. Clean up the legacy 'pinned' key if it's
+  // still around — its contents were already merged into history by an earlier
+  // migration (or we merge them now if this is the first run).
   try {
     clipboardHistory = store.get('history') || [];
-    pinnedEntries = store.get('pinned') || [];
-  } catch {
+    const rawGroups = store.get('groups');
+    groups = Array.isArray(rawGroups) ? rawGroups : [];
+
+    if (store.has('pinned')) {
+      const legacyPinned = store.get('pinned');
+      if (Array.isArray(legacyPinned) && legacyPinned.length > 0) {
+        const historyIds = new Set(clipboardHistory.map((e) => e.id));
+        const toMerge = legacyPinned.filter((e) => !historyIds.has(e.id));
+        if (toMerge.length > 0) {
+          clipboardHistory = [...toMerge, ...clipboardHistory].slice(0, MAX_HISTORY);
+          store.set('history', clipboardHistory);
+        }
+      }
+      store.delete('pinned');
+    }
+
+    // Drop any stale isProtected flag from earlier migrations — folders are now
+    // all user-editable.
+    let dirty = false;
+    groups.forEach((g) => {
+      if ('isProtected' in g) { delete g.isProtected; dirty = true; }
+    });
+    if (dirty) store.set('groups', groups);
+  } catch (err) {
+    console.error('Failed to load store data:', err);
     clipboardHistory = [];
-    pinnedEntries = [];
+    groups = [];
   }
 
   if (clipboardHistory.length > 0) {
