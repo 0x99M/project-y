@@ -3,7 +3,8 @@ let groupsData = [];
 let filteredData = [];
 let selectedIndex = -1;
 let searchMode = 'content';
-let activeTab = 'history'; // 'history' | 'folders'
+let activeFilter = 'all';  // 'all' | group.id
+let filterMenuOpen = false;
 let settingsOpen = false;
 let autoScrollTop = true;
 let autoClearSearch = true;
@@ -61,7 +62,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   historyData = await window.clipboardManager.getHistory();
   groupsData = await window.clipboardManager.getGroups();
-  renderActiveTab();
+  activeFilter = (await window.clipboardManager.getActiveFilter()) || 'all';
+  // Snap back to 'all' if the persisted filter points at a deleted folder
+  if (activeFilter !== 'all' && !groupsData.some((g) => g.id === activeFilter)) {
+    activeFilter = 'all';
+    window.clipboardManager.setActiveFilter('all');
+  }
+  updateFilterLabel();
+  applyFilter();
 
   window.clipboardManager.onHistoryUpdated((history) => {
     if (document.activeElement && document.activeElement.classList.contains('note-input')) {
@@ -69,18 +77,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     historyData = history;
-    if (activeTab === 'history') applyFilter();
+    applyFilter();
   });
 
   window.clipboardManager.onGroupsUpdated((groups) => {
     groupsData = groups;
-    if (activeTab === 'folders') renderFolders();
-  });
-
-  searchEl.addEventListener('input', () => {
-    if (activeTab !== 'history') return;
+    // If the active filter points at a now-missing group, reset
+    if (activeFilter !== 'all' && !groups.some((g) => g.id === activeFilter)) {
+      activeFilter = 'all';
+      window.clipboardManager.setActiveFilter('all');
+    }
+    updateFilterLabel();
+    // Refresh the main list (chips may have changed)
     applyFilter();
   });
+
+  window.clipboardManager.onFilterReset(() => {
+    activeFilter = 'all';
+    updateFilterLabel();
+    applyFilter();
+  });
+
+  searchEl.addEventListener('input', applyFilter);
 
   clearBtn.addEventListener('click', async () => {
     const ok = confirm('Clear all clipboard history? This can\'t be undone.');
@@ -95,21 +113,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('collapse-icon').style.display = expanded ? '' : 'none';
   });
 
-  // Static tab switching (History / Folders)
-  document.querySelectorAll('.tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const target = tab.dataset.tab;
-      activeTab = target;
-      document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t === tab));
-      selectedIndex = -1;
-      renderActiveTab();
-    });
+  // Filter dropdown trigger
+  document.getElementById('filter-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (filterMenuOpen) closeFilterMenu();
+    else openFilterMenu();
   });
 
   document.getElementById('settings-btn').addEventListener('click', async () => {
     settingsOpen = !settingsOpen;
     const settingsView = document.getElementById('settings-view');
-    const tabBar = document.getElementById('tab-bar');
+    const filterBar = document.getElementById('filter-bar');
     const searchBar = document.getElementById('search-bar');
     const footer = document.getElementById('footer');
 
@@ -119,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (settingsOpen) {
       listEl.style.display = 'none';
       emptyEl.style.display = 'none';
-      tabBar.style.display = 'none';
+      filterBar.style.display = 'none';
       searchBar.style.display = 'none';
       footer.style.display = 'none';
       minimalBtn.style.display = 'none';
@@ -130,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       listEl.style.display = '';
       searchBar.style.display = '';
       if (!isMinimal) {
-        tabBar.style.display = '';
+        filterBar.style.display = '';
         footer.style.display = '';
       }
       minimalBtn.style.display = '';
@@ -227,13 +241,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchEl.value = '';
       }
       selectedIndex = -1;
-      renderActiveTab();
+      applyFilter();
       if (autoScrollTop) {
         listEl.scrollTop = 0;
       }
 
-      // Pre-select the first entry (History only) if the user opted in.
-      if (autoFocusFirst && activeTab === 'history') {
+      // Pre-select the first entry if the user opted in.
+      if (autoFocusFirst) {
         const entries = currentEntries();
         if (entries.length > 0) {
           selectedIndex = 0;
@@ -242,7 +256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
 
-      if (activeTab === 'history') searchEl.focus();
+      searchEl.focus();
     }
   });
 
@@ -375,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       historyData = await window.clipboardManager.getHistory();
       groupsData = await window.clipboardManager.getGroups();
       applyProGating();
-      renderActiveTab();
+      applyFilter();
     } else {
       msg.textContent = result.error || 'Invalid license key';
       msg.className = 'license-message error';
@@ -392,7 +406,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     historyData = await window.clipboardManager.getHistory();
     groupsData = await window.clipboardManager.getGroups();
     applyProGating();
-    renderActiveTab();
+    applyFilter();
   });
 });
 
@@ -460,25 +474,6 @@ function applyProGating() {
     }
   });
 
-  // Folders tab: add a PRO badge for free users but keep the tab clickable.
-  const foldersTab = document.querySelector('[data-tab="folders"]');
-  if (foldersTab) {
-    if (!proActive) {
-      if (!foldersTab.querySelector('.pro-badge')) {
-        const badge = document.createElement('span');
-        badge.className = 'pro-badge';
-        badge.textContent = 'PRO';
-        foldersTab.appendChild(badge);
-      }
-    } else {
-      foldersTab.querySelector('.pro-badge')?.remove();
-    }
-  }
-
-  // If the user is now on Folders and we just rendered, refresh its view so
-  // the upgrade prompt / folder list swaps based on the new pro state.
-  if (activeTab === 'folders') renderFolders();
-
   // Search bar (free tier)
   searchEl.disabled = false;
   searchEl.placeholder = 'Search clipboard...';
@@ -519,23 +514,11 @@ function applyFontSize(size) {
 // ─── Rendering ──────────────────────────────────────────────────────────────────
 
 function getSourceData() {
-  return historyData;
-}
-
-function renderActiveTab() {
-  const searchBar = document.getElementById('search-bar');
-  if (activeTab === 'folders') {
-    // Hide search + clear its value so returning to History starts fresh
-    if (searchBar) searchBar.style.display = 'none';
-    if (searchEl.value) {
-      searchEl.value = '';
-      filteredData = [];
-    }
-    renderFolders();
-  } else {
-    if (searchBar) searchBar.style.display = '';
-    applyFilter();
-  }
+  if (activeFilter === 'all') return historyData;
+  const group = groupsData.find((g) => g.id === activeFilter);
+  if (!group) return historyData;
+  const byId = new Map(historyData.map((e) => [e.id, e]));
+  return group.memberIds.map((id) => byId.get(id)).filter(Boolean);
 }
 
 function render(entries) {
@@ -718,7 +701,13 @@ function applyFilter() {
 
   if (!query) {
     filteredData = [];
-    render(getSourceData());
+    const source = getSourceData();
+    // Folder filter with no entries: render a contextual empty state
+    if (activeFilter !== 'all' && source.length === 0) {
+      renderFilterEmptyState();
+      return;
+    }
+    render(source);
   } else {
     // Search across all of history (groups reference history entries)
     filteredData = historyData.filter((e) => {
@@ -728,6 +717,43 @@ function applyFilter() {
     });
     render(filteredData);
   }
+}
+
+function renderFilterEmptyState() {
+  listEl.textContent = '';
+  emptyEl.classList.remove('visible');
+
+  if (!proActive) {
+    const card = document.createElement('div');
+    card.className = 'folders-upgrade';
+    card.innerHTML =
+      '<div class="folders-upgrade-icon">' +
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
+        '</svg>' +
+      '</div>' +
+      '<div class="folders-upgrade-title">Folders is a Pro feature</div>' +
+      '<div class="folders-upgrade-body">Organize your clipboard entries into named folders. Create, rename, and delete folders with Clipmer Pro.</div>' +
+      '<button class="folders-upgrade-btn">Get Clipmer Pro</button>';
+    card.querySelector('.folders-upgrade-btn').addEventListener('click', () => {
+      window.open('https://clipmer.app/pro', '_blank');
+    });
+    listEl.appendChild(card);
+    return;
+  }
+
+  const group = groupsData.find((g) => g.id === activeFilter);
+  const name = group ? group.name : 'this folder';
+  const msg = document.createElement('div');
+  msg.className = 'folder-filter-empty';
+  msg.innerHTML =
+    '<p>No entries in <strong></strong> yet.</p>' +
+    '<p class="empty-hint">Open the ⋯ menu on any entry to add it.</p>';
+  msg.querySelector('strong').textContent = name;
+  listEl.appendChild(msg);
+
+  const countEl = document.getElementById('entry-count');
+  if (countEl) countEl.textContent = '';
 }
 
 function currentEntries() {
@@ -751,6 +777,15 @@ function updateSearchModeIndicator() {
 // ─── Keyboard navigation ────────────────────────────────────────────────────────
 
 function handleKeyDown(e) {
+  // If the filter menu is open, Escape closes it first
+  if (filterMenuOpen) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeFilterMenu();
+    }
+    return;
+  }
+
   // If an entry menu is open, Escape closes it first
   if (entryMenuOpen) {
     if (e.key === 'Escape') {
@@ -855,12 +890,14 @@ function handleKeyDown(e) {
     case 'Tab':
       e.preventDefault();
       if (e.shiftKey) {
-        // Shift+Tab: switch between History and Folders tabs
-        const next = activeTab === 'history' ? 'folders' : 'history';
-        activeTab = next;
-        document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === next));
+        // Shift+Tab: cycle through filter options (All + each folder)
+        const order = ['all', ...groupsData.map((g) => g.id)];
+        const idx = order.indexOf(activeFilter);
+        activeFilter = order[(idx + 1) % order.length];
+        window.clipboardManager.setActiveFilter(activeFilter);
+        updateFilterLabel();
         selectedIndex = -1;
-        renderActiveTab();
+        applyFilter();
       } else {
         // Tab: toggle search mode
         searchMode = searchMode === 'content' ? 'notes' : 'content';
@@ -903,178 +940,77 @@ function debounce(fn, ms) {
   };
 }
 
-// ─── Tab rendering ──────────────────────────────────────────────────────────────
+// ─── Filter dropdown ────────────────────────────────────────────────────────────
 
-// ─── Folders tab view ──────────────────────────────────────────────────────────
-
-function renderFolders() {
-  listEl.innerHTML = '';
-  emptyEl.classList.remove('visible');
-
-  // Free users: show an upgrade card instead of the folder list
-  if (!proActive) {
-    const card = document.createElement('div');
-    card.className = 'folders-upgrade';
-    card.innerHTML =
-      '<div class="folders-upgrade-icon">' +
-        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-          '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
-        '</svg>' +
-      '</div>' +
-      '<div class="folders-upgrade-title">Folders is a Pro feature</div>' +
-      '<div class="folders-upgrade-body">Organize your clipboard entries into named folders. Create, rename, and delete folders with Clipmer Pro.</div>' +
-      '<button class="folders-upgrade-btn">Get Clipmer Pro</button>';
-    card.querySelector('.folders-upgrade-btn').addEventListener('click', () => {
-      window.open('https://clipmer.app/pro', '_blank');
-    });
-    listEl.appendChild(card);
-    return;
+function updateFilterLabel() {
+  const label = document.getElementById('filter-label');
+  if (!label) return;
+  if (activeFilter === 'all') {
+    label.textContent = 'All';
+  } else {
+    const g = groupsData.find((x) => x.id === activeFilter);
+    label.textContent = g ? g.name : 'All';
   }
+}
 
-  // "Create folder" row at the top
-  const createRow = document.createElement('button');
-  createRow.className = 'folder-create-btn';
-  createRow.innerHTML =
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
-    '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>' +
-    '</svg><span>New folder</span>';
-  createRow.addEventListener('click', () => startCreateFolderInline(createRow));
-  listEl.appendChild(createRow);
+function openFilterMenu() {
+  closeFilterMenu();
+  const anchor = document.getElementById('filter-btn');
+  if (!anchor) return;
 
-  if (groupsData.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'folder-empty';
-    empty.textContent = 'No folders yet. Click "New folder" to create one.';
-    listEl.appendChild(empty);
-    return;
+  const menu = document.createElement('div');
+  menu.className = 'entry-menu filter-menu';
+  document.body.appendChild(menu);
+  filterMenuOpen = true;
+  anchor.classList.add('open');
+
+  const buildRow = (id, name) => {
+    const row = document.createElement('button');
+    row.className = 'entry-menu-item';
+    const check = document.createElement('span');
+    check.className = 'entry-menu-check' + (activeFilter === id ? '' : ' empty');
+    check.textContent = '✓';
+    row.appendChild(check);
+    const label = document.createElement('span');
+    label.textContent = name;
+    row.appendChild(label);
+    row.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      activeFilter = id;
+      await window.clipboardManager.setActiveFilter(id);
+      updateFilterLabel();
+      closeFilterMenu();
+      selectedIndex = -1;
+      applyFilter();
+    });
+    return row;
+  };
+
+  menu.appendChild(buildRow('all', 'All entries'));
+  groupsData.forEach((g) => menu.appendChild(buildRow(g.id, g.name)));
+
+  // Position under the anchor
+  const rect = anchor.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  let left = rect.left;
+  let top = rect.bottom + 4;
+  if (top + menuRect.height > window.innerHeight) {
+    top = rect.top - menuRect.height - 4;
   }
-
-  groupsData.forEach((group) => {
-    const row = document.createElement('div');
-    row.className = 'folder-row';
-    row.dataset.id = group.id;
-
-    const icon = document.createElement('span');
-    icon.className = 'folder-icon';
-    icon.innerHTML =
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
-      '</svg>';
-    row.appendChild(icon);
-
-    const name = document.createElement('span');
-    name.className = 'folder-name';
-    name.textContent = group.name;
-    row.appendChild(name);
-
-    const actions = document.createElement('span');
-    actions.className = 'folder-actions';
-
-    const renameBtn = document.createElement('button');
-    renameBtn.className = 'folder-action-btn';
-    renameBtn.title = 'Rename';
-    renameBtn.innerHTML =
-      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>' +
-      '</svg>';
-    renameBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      startRenameFolderInline(row, group);
-    });
-    actions.appendChild(renameBtn);
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'folder-action-btn folder-action-danger';
-    deleteBtn.title = 'Delete';
-    deleteBtn.innerHTML =
-      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-      '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>' +
-      '</svg>';
-    deleteBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      handleDeleteFolder(group);
-    });
-    actions.appendChild(deleteBtn);
-
-    row.appendChild(actions);
-    listEl.appendChild(row);
-  });
+  if (left + menuRect.width > window.innerWidth - 4) {
+    left = window.innerWidth - menuRect.width - 4;
+  }
+  if (left < 4) left = 4;
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
 }
 
-function startCreateFolderInline(anchorBtn) {
-  if (!proActive) return;
-  if (listEl.querySelector('.folder-inline-input')) return;
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'folder-inline-input';
-  input.placeholder = 'Folder name';
-  listEl.insertBefore(input, anchorBtn.nextSibling);
-  input.focus();
-
-  const commit = async () => {
-    input.removeEventListener('blur', commit);
-    const value = input.value.trim();
-    if (!value) { input.remove(); return; }
-    const result = await window.clipboardManager.createGroup(value);
-    if (!result || !result.success) {
-      input.remove();
-      if (result && result.error) alert(result.error);
-    }
-    // onGroupsUpdated triggers a re-render
-  };
-  const cancel = () => {
-    input.removeEventListener('blur', commit);
-    input.remove();
-  };
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); commit(); }
-    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
-  });
-  input.addEventListener('blur', commit);
-}
-
-function startRenameFolderInline(row, group) {
-  if (!proActive) return;
-  const nameEl = row.querySelector('.folder-name');
-  if (!nameEl || row.querySelector('.folder-inline-input')) return;
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'folder-inline-input folder-rename-input';
-  input.value = group.name;
-  nameEl.replaceWith(input);
-  input.focus();
-  input.select();
-
-  const commit = async () => {
-    input.removeEventListener('blur', commit);
-    const value = input.value.trim();
-    if (value && value !== group.name) {
-      const result = await window.clipboardManager.renameGroup({ id: group.id, name: value });
-      if (!result || !result.success) {
-        if (result && result.error) alert(result.error);
-        renderFolders();
-      }
-    } else {
-      renderFolders();
-    }
-  };
-  const cancel = () => {
-    input.removeEventListener('blur', commit);
-    renderFolders();
-  };
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); commit(); }
-    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
-  });
-  input.addEventListener('blur', commit);
-}
-
-async function handleDeleteFolder(group) {
-  if (!proActive) return;
-  const ok = confirm(`Delete folder "${group.name}"?`);
-  if (!ok) return;
-  await window.clipboardManager.deleteGroup(group.id);
+function closeFilterMenu() {
+  const existing = document.querySelector('.filter-menu');
+  if (existing) existing.remove();
+  filterMenuOpen = false;
+  const anchor = document.getElementById('filter-btn');
+  if (anchor) anchor.classList.remove('open');
 }
 
 // ─── Per-entry actions menu ─────────────────────────────────────────────────────
@@ -1348,10 +1284,16 @@ document.getElementById('viewer-copy').addEventListener('click', () => {
 
 // Dismiss entry actions menu on outside click
 document.addEventListener('click', (e) => {
-  if (!entryMenuOpen) return;
-  const menu = document.querySelector('.entry-menu');
-  if (!menu) return;
-  if (menu.contains(e.target)) return;
-  if (e.target.closest('.entry-actions-btn')) return;
-  closeEntryMenu();
+  if (entryMenuOpen) {
+    const menu = document.querySelector('.entry-menu:not(.filter-menu)');
+    if (menu && !menu.contains(e.target) && !e.target.closest('.entry-actions-btn')) {
+      closeEntryMenu();
+    }
+  }
+  if (filterMenuOpen) {
+    const menu = document.querySelector('.filter-menu');
+    if (menu && !menu.contains(e.target) && !e.target.closest('#filter-btn')) {
+      closeFilterMenu();
+    }
+  }
 });

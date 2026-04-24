@@ -31,6 +31,7 @@ const store = new Store({
     autoClearSearch: true,
     closeSettingsOnOpen: true,
     autoFocusFirst: false,
+    activeFilter: 'all',
     fontSize: 13,
     minimalView: false,
     rememberPosition: true,
@@ -369,6 +370,14 @@ ipcMain.handle('delete-group', (_event, id) => {
   if (idx === -1) return { success: false };
   groups.splice(idx, 1);
   store.set('groups', groups);
+
+  if (store.get('activeFilter') === id) {
+    store.set('activeFilter', 'all');
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('filter-reset');
+    }
+  }
+
   emitGroupsUpdated();
   return { success: true };
 });
@@ -671,6 +680,8 @@ ipcMain.handle('get-close-settings-on-open', () => store.get('closeSettingsOnOpe
 ipcMain.handle('set-close-settings-on-open', (_event, v) => store.set('closeSettingsOnOpen', v));
 ipcMain.handle('get-auto-focus-first', () => store.get('autoFocusFirst') === true);
 ipcMain.handle('set-auto-focus-first', (_event, v) => store.set('autoFocusFirst', v));
+ipcMain.handle('get-active-filter', () => store.get('activeFilter') || 'all');
+ipcMain.handle('set-active-filter', (_event, v) => store.set('activeFilter', v || 'all'));
 ipcMain.handle('get-font-size', () => store.get('fontSize') || 13);
 ipcMain.handle('set-font-size', (_event, size) => store.set('fontSize', size));
 ipcMain.handle('get-minimal-view', () => store.get('minimalView') || false);

@@ -112,7 +112,7 @@ body.minimal #header {
   display: none;
 }
 
-body.minimal #tab-bar {
+body.minimal #filter-bar {
   display: none;
 }
 
@@ -226,38 +226,75 @@ body.expanded .entry-image-preview {
   max-height: 160px;
 }
 
-/* ─── Tab bar ───────────────────────────────────────────────────────────────── */
+/* ─── Filter bar ─────────────────────────────────────────────────────────────── */
 
-#tab-bar {
+#filter-bar {
   display: flex;
-  padding: 0 16px;
-  gap: 0;
+  align-items: center;
+  padding: 6px 16px;
   background: var(--surface-headerbar);
   border-bottom: 1px solid var(--border-default);
   flex-shrink: 0;
 }
 
-.tab {
-  flex: 1;
-  padding: 8px 0;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--surface-raised);
   color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
   font-family: inherit;
   font-size: var(--font-size-label);
   font-weight: 500;
   cursor: pointer;
-  transition: color 150ms ease, border-color 150ms ease;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+  max-width: 220px;
 }
 
-.tab:hover {
-  color: var(--text-primary);
-}
-
-.tab.active {
+.filter-btn:hover,
+.filter-btn.open {
   color: var(--accent);
-  border-bottom-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.filter-btn svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.filter-btn #filter-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-menu {
+  min-width: 200px;
+  max-width: 260px;
+}
+
+.folder-filter-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-label);
+}
+
+.folder-filter-empty p {
+  margin: 4px 0;
+}
+
+.folder-filter-empty strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.folder-filter-empty .empty-hint {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
 }
 
 /* ─── Search bar ─────────────────────────────────────────────────────────────── */
@@ -959,6 +996,7 @@ body.expanded .entry-image-preview {
 }
 
 .settings-tab {
+  flex: 1;
   background: none;
   border: none;
   color: var(--text-muted);
