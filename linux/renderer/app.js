@@ -8,6 +8,7 @@ let settingsOpen = false;
 let autoScrollTop = true;
 let autoClearSearch = true;
 let closeSettingsOnOpen = true;
+let autoFocusFirst = false;
 let proActive = false;
 let viewerOpen = false;
 let viewerEntry = null;
@@ -43,6 +44,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeSettingsToggle = document.getElementById('close-settings-toggle');
   closeSettingsOnOpen = await window.clipboardManager.getCloseSettingsOnOpen();
   closeSettingsToggle.checked = closeSettingsOnOpen;
+  const autoFocusFirstToggle = document.getElementById('auto-focus-first-toggle');
+  autoFocusFirst = await window.clipboardManager.getAutoFocusFirst();
+  autoFocusFirstToggle.checked = autoFocusFirst;
   const rememberPosToggle = document.getElementById('remember-position-toggle');
   rememberPosToggle.checked = await window.clipboardManager.getRememberPosition();
   const minimalToggle = document.getElementById('minimal-view-toggle');
@@ -198,6 +202,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.clipboardManager.setCloseSettingsOnOpen(closeSettingsOnOpen);
   });
 
+  // Focus-first-item-on-open toggle
+  autoFocusFirstToggle.addEventListener('change', () => {
+    autoFocusFirst = autoFocusFirstToggle.checked;
+    window.clipboardManager.setAutoFocusFirst(autoFocusFirst);
+  });
+
   // Remember position toggle
   rememberPosToggle.addEventListener('change', () => {
     window.clipboardManager.setRememberPosition(rememberPosToggle.checked);
@@ -221,6 +231,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (autoScrollTop) {
         listEl.scrollTop = 0;
       }
+
+      // Pre-select the first entry (History only) if the user opted in.
+      if (autoFocusFirst && activeTab === 'history') {
+        const entries = currentEntries();
+        if (entries.length > 0) {
+          selectedIndex = 0;
+          render(entries);
+          scrollSelectedIntoView();
+        }
+      }
+
       if (activeTab === 'history') searchEl.focus();
     }
   });
@@ -328,6 +349,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.clipboardManager.setCloseSettingsOnOpen(true);
     closeSettingsOnOpen = true;
     closeSettingsToggle.checked = true;
+    window.clipboardManager.setAutoFocusFirst(false);
+    autoFocusFirst = false;
+    autoFocusFirstToggle.checked = false;
     window.clipboardManager.setFontSize(13);
   });
 

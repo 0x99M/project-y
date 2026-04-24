@@ -30,6 +30,7 @@ const store = new Store({
     autoScrollTop: true,
     autoClearSearch: true,
     closeSettingsOnOpen: true,
+    autoFocusFirst: false,
     fontSize: 13,
     minimalView: false,
     rememberPosition: true,
@@ -668,6 +669,8 @@ ipcMain.handle('get-auto-clear-search', () => store.get('autoClearSearch') !== f
 ipcMain.handle('set-auto-clear-search', (_event, v) => store.set('autoClearSearch', v));
 ipcMain.handle('get-close-settings-on-open', () => store.get('closeSettingsOnOpen') !== false);
 ipcMain.handle('set-close-settings-on-open', (_event, v) => store.set('closeSettingsOnOpen', v));
+ipcMain.handle('get-auto-focus-first', () => store.get('autoFocusFirst') === true);
+ipcMain.handle('set-auto-focus-first', (_event, v) => store.set('autoFocusFirst', v));
 ipcMain.handle('get-font-size', () => store.get('fontSize') || 13);
 ipcMain.handle('set-font-size', (_event, size) => store.set('fontSize', size));
 ipcMain.handle('get-minimal-view', () => store.get('minimalView') || false);

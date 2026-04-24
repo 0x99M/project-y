@@ -30,6 +30,8 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   setAutoClearSearch: (v) => ipcRenderer.invoke('set-auto-clear-search', v),
   getCloseSettingsOnOpen: () => ipcRenderer.invoke('get-close-settings-on-open'),
   setCloseSettingsOnOpen: (v) => ipcRenderer.invoke('set-close-settings-on-open', v),
+  getAutoFocusFirst: () => ipcRenderer.invoke('get-auto-focus-first'),
+  setAutoFocusFirst: (v) => ipcRenderer.invoke('set-auto-focus-first', v),
   getFontSize: () => ipcRenderer.invoke('get-font-size'),
   setFontSize: (size) => ipcRenderer.invoke('set-font-size', size),
   getMinimalView: () => ipcRenderer.invoke('get-minimal-view'),
