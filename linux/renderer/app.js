@@ -11,6 +11,9 @@ let closeSettingsOnOpen = true;
 let proActive = false;
 let viewerOpen = false;
 let viewerEntry = null;
+let entryMenuOpen = false;
+let entryMenuTarget = null;
+let entryMenuView = 'main'; // 'main' | 'folders'
 
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
@@ -556,6 +559,33 @@ function render(entries) {
     time.textContent = timeAgo(entry.timestamp);
     body.appendChild(time);
 
+    // Folder chips (one per folder this entry belongs to)
+    const memberGroups = groupsData.filter((g) => g.memberIds.includes(entry.id));
+    if (memberGroups.length > 0) {
+      const chips = document.createElement('div');
+      chips.className = 'entry-chips';
+      memberGroups.forEach((group) => {
+        const chip = document.createElement('button');
+        chip.className = 'entry-chip';
+        chip.title = proActive ? `Remove from "${group.name}"` : group.name;
+        chip.innerHTML =
+          '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
+          '</svg><span class="entry-chip-name"></span>';
+        chip.querySelector('.entry-chip-name').textContent = group.name;
+        if (proActive) {
+          chip.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await window.clipboardManager.removeFromGroup({ groupId: group.id, entryId: entry.id });
+          });
+        } else {
+          chip.addEventListener('click', (e) => e.stopPropagation());
+        }
+        chips.appendChild(chip);
+      });
+      body.appendChild(chips);
+    }
+
     // Note input (pro only)
     const noteInput = document.createElement('input');
     noteInput.type = 'text';
@@ -581,20 +611,26 @@ function render(entries) {
     body.appendChild(noteInput);
     row.appendChild(body);
 
-    // View full content button
-    const viewBtn = document.createElement('button');
-    viewBtn.className = 'view-btn';
-    viewBtn.title = 'View full content (Shift+Enter)';
-    viewBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-    viewBtn.addEventListener('click', (e) => {
+    // Actions menu button ("...")
+    const actionsBtn = document.createElement('button');
+    actionsBtn.className = 'entry-actions-btn';
+    actionsBtn.title = 'More actions';
+    actionsBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>';
+    actionsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      openViewer(entry);
+      // Toggle: if this entry's menu is already open, close it instead of reopening
+      if (entryMenuOpen && entryMenuTarget && entryMenuTarget.id === entry.id) {
+        closeEntryMenu();
+      } else {
+        openEntryActionsMenu(actionsBtn, entry);
+      }
     });
-    row.appendChild(viewBtn);
+    row.appendChild(actionsBtn);
 
     row.addEventListener('click', (e) => {
       if (e.target.classList.contains('note-input')) return;
-      if (e.target.closest('.view-btn')) return;
+      if (e.target.closest('.entry-actions-btn')) return;
+      if (e.target.closest('.entry-chip')) return;
       selectEntry(i);
     });
 
@@ -691,6 +727,15 @@ function updateSearchModeIndicator() {
 // ─── Keyboard navigation ────────────────────────────────────────────────────────
 
 function handleKeyDown(e) {
+  // If an entry menu is open, Escape closes it first
+  if (entryMenuOpen) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeEntryMenu();
+    }
+    return;
+  }
+
   // If viewer is open, Escape closes it (everything else ignored)
   if (viewerOpen) {
     if (e.key === 'Escape') {
@@ -1008,6 +1053,229 @@ async function handleDeleteFolder(group) {
   await window.clipboardManager.deleteGroup(group.id);
 }
 
+// ─── Per-entry actions menu ─────────────────────────────────────────────────────
+
+function openEntryActionsMenu(anchor, entry) {
+  closeEntryMenu();
+
+  const menu = document.createElement('div');
+  menu.className = 'entry-menu';
+  document.body.appendChild(menu);
+
+  entryMenuOpen = true;
+  entryMenuTarget = entry;
+  entryMenuView = 'main';
+
+  renderEntryActionsMenu(menu, entry);
+  positionEntryMenu(menu, anchor);
+}
+
+function positionEntryMenu(menu, anchor) {
+  const rect = anchor.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  let left = rect.right - menuRect.width;
+  let top = rect.bottom + 4;
+  if (top + menuRect.height > window.innerHeight) {
+    top = rect.top - menuRect.height - 4;
+  }
+  if (left < 4) left = 4;
+  if (left + menuRect.width > window.innerWidth - 4) {
+    left = window.innerWidth - menuRect.width - 4;
+  }
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+}
+
+function renderEntryActionsMenu(menu, entry) {
+  entryMenuView = 'main';
+  menu.innerHTML = '';
+
+  // Add to folder
+  const addBtn = document.createElement('button');
+  addBtn.className = 'entry-menu-item';
+  addBtn.innerHTML =
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
+    '</svg><span>Add to folder</span>';
+  if (!proActive) {
+    const badge = document.createElement('span');
+    badge.className = 'pro-badge';
+    badge.textContent = 'PRO';
+    badge.style.marginLeft = 'auto';
+    addBtn.appendChild(badge);
+  } else {
+    const arrow = document.createElement('span');
+    arrow.style.marginLeft = 'auto';
+    arrow.style.color = 'var(--text-muted)';
+    arrow.textContent = '›';
+    addBtn.appendChild(arrow);
+  }
+  addBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    renderFolderPickerMenu(menu, entry);
+  });
+  menu.appendChild(addBtn);
+
+  // View
+  const viewBtn = document.createElement('button');
+  viewBtn.className = 'entry-menu-item';
+  viewBtn.innerHTML =
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>' +
+    '</svg><span>View full content</span>';
+  viewBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeEntryMenu();
+    openViewer(entry);
+  });
+  menu.appendChild(viewBtn);
+
+  const sep = document.createElement('div');
+  sep.className = 'entry-menu-separator';
+  menu.appendChild(sep);
+
+  // Delete (2-step confirm)
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'entry-menu-item danger';
+  deleteBtn.dataset.confirming = 'false';
+  deleteBtn.innerHTML =
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path>' +
+    '</svg><span class="entry-menu-delete-label">Delete</span>';
+  deleteBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (deleteBtn.dataset.confirming !== 'true') {
+      deleteBtn.dataset.confirming = 'true';
+      deleteBtn.querySelector('.entry-menu-delete-label').textContent = 'Click again to confirm';
+      return;
+    }
+    closeEntryMenu();
+    await window.clipboardManager.deleteEntry(entry.id);
+    selectedIndex = -1;
+  });
+  menu.appendChild(deleteBtn);
+}
+
+function renderFolderPickerMenu(menu, entry) {
+  entryMenuView = 'folders';
+  menu.innerHTML = '';
+
+  // Back row
+  const back = document.createElement('button');
+  back.className = 'entry-menu-item entry-menu-back';
+  back.innerHTML =
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<polyline points="15 18 9 12 15 6"></polyline>' +
+    '</svg><span>Actions</span>';
+  back.addEventListener('click', (e) => {
+    e.stopPropagation();
+    renderEntryActionsMenu(menu, entry);
+  });
+  menu.appendChild(back);
+
+  if (!proActive) {
+    const upgrade = document.createElement('div');
+    upgrade.className = 'entry-menu-upgrade';
+    upgrade.innerHTML =
+      '<div style="margin-bottom:6px">Organize entries with folders.</div>' +
+      '<button class="folders-upgrade-btn" style="padding:6px 14px;font-size:var(--font-size-xs)">Get Clipmer Pro</button>';
+    upgrade.querySelector('.folders-upgrade-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.open('https://clipmer.app/pro', '_blank');
+    });
+    menu.appendChild(upgrade);
+    return;
+  }
+
+  if (groupsData.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'entry-menu-upgrade';
+    empty.textContent = 'No folders yet. Create one below.';
+    menu.appendChild(empty);
+  } else {
+    groupsData.forEach((group) => {
+      const row = document.createElement('button');
+      row.className = 'entry-menu-item';
+      const isMember = group.memberIds.includes(entry.id);
+      const check = document.createElement('span');
+      check.className = 'entry-menu-check' + (isMember ? '' : ' empty');
+      check.textContent = isMember ? '✓' : '✓';
+      row.appendChild(check);
+      const name = document.createElement('span');
+      name.textContent = group.name;
+      row.appendChild(name);
+      row.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (isMember) {
+          await window.clipboardManager.removeFromGroup({ groupId: group.id, entryId: entry.id });
+        } else {
+          await window.clipboardManager.addToGroup({ groupId: group.id, entryId: entry.id });
+        }
+        // onGroupsUpdated will refresh groupsData; re-render the picker if still open
+        if (entryMenuOpen && entryMenuView === 'folders') {
+          renderFolderPickerMenu(menu, entry);
+        }
+      });
+      menu.appendChild(row);
+    });
+  }
+
+  // + New folder row
+  const addRow = document.createElement('button');
+  addRow.className = 'entry-menu-item';
+  addRow.style.color = 'var(--text-secondary)';
+  addRow.innerHTML = '<span style="width:13px;text-align:center">+</span><span>New folder&hellip;</span>';
+  addRow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    promptNewFolderInMenu(menu, entry, addRow);
+  });
+  menu.appendChild(addRow);
+}
+
+function promptNewFolderInMenu(menu, entry, anchorRow) {
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'entry-menu-inline-input';
+  input.placeholder = 'Folder name';
+  anchorRow.replaceWith(input);
+  input.focus();
+
+  const commit = async () => {
+    input.removeEventListener('blur', commit);
+    const value = input.value.trim();
+    if (!value) {
+      renderFolderPickerMenu(menu, entry);
+      return;
+    }
+    const result = await window.clipboardManager.createGroup(value);
+    if (result && result.success && result.id) {
+      await window.clipboardManager.addToGroup({ groupId: result.id, entryId: entry.id });
+    } else if (result && result.error) {
+      alert(result.error);
+    }
+    if (entryMenuOpen && entryMenuView === 'folders') {
+      renderFolderPickerMenu(menu, entry);
+    }
+  };
+  const cancel = () => {
+    input.removeEventListener('blur', commit);
+    renderFolderPickerMenu(menu, entry);
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+  input.addEventListener('blur', commit);
+}
+
+function closeEntryMenu() {
+  const existing = document.querySelector('.entry-menu');
+  if (existing) existing.remove();
+  entryMenuOpen = false;
+  entryMenuTarget = null;
+  entryMenuView = 'main';
+}
+
 // ─── Full-content viewer ────────────────────────────────────────────────────────
 
 function openViewer(entry) {
@@ -1052,4 +1320,14 @@ document.getElementById('viewer-copy').addEventListener('click', () => {
     closeViewer();
     window.clipboardManager.hideWindow();
   }
+});
+
+// Dismiss entry actions menu on outside click
+document.addEventListener('click', (e) => {
+  if (!entryMenuOpen) return;
+  const menu = document.querySelector('.entry-menu');
+  if (!menu) return;
+  if (menu.contains(e.target)) return;
+  if (e.target.closest('.entry-actions-btn')) return;
+  closeEntryMenu();
 });

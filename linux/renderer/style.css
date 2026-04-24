@@ -564,6 +564,165 @@ body.expanded .entry-image-preview {
   color: var(--text-muted);
 }
 
+/* ─── Folder chips on entries ──────────────────────────────────────────── */
+
+.entry-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.entry-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--accent-muted);
+  color: var(--accent);
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  max-width: 140px;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, opacity 150ms ease;
+}
+
+.entry-chip:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.entry-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Per-entry actions menu ───────────────────────────────────────────── */
+
+.entry-actions-btn {
+  background: none;
+  border: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: flex-start;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.entry-actions-btn:hover {
+  color: var(--accent);
+  background: var(--surface-input);
+}
+
+.entry-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 180px;
+  max-width: 240px;
+  background: var(--surface-popover);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: entry-menu-pop 120ms ease-out;
+}
+
+@keyframes entry-menu-pop {
+  from { transform: translateY(-4px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.entry-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.entry-menu-item:hover {
+  background: var(--surface-input);
+}
+
+.entry-menu-item.danger {
+  color: #f87171;
+}
+
+.entry-menu-item.danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.entry-menu-separator {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 2px 0;
+}
+
+.entry-menu-check {
+  width: 14px;
+  display: inline-flex;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.entry-menu-check.empty {
+  color: transparent;
+}
+
+.entry-menu-back {
+  color: var(--text-muted);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 4px;
+  border-radius: 4px 4px 0 0;
+}
+
+.entry-menu-upgrade {
+  padding: 12px 10px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.entry-menu-inline-input {
+  width: calc(100% - 0px);
+  padding: 6px 8px;
+  margin: 2px 0;
+  background: var(--surface-input);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  outline: none;
+  box-sizing: border-box;
+}
+
 /* ─── Folders view ───────────────────────────────────────────────────────── */
 
 .folders-upgrade {
@@ -1216,30 +1375,6 @@ body.expanded .entry-image-preview {
 
 .upgrade-banner a:hover {
   text-decoration: underline;
-}
-
-/* ─── View button per entry ──────────────────────────────────────────────── */
-
-.view-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  flex-shrink: 0;
-  align-self: flex-start;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s, background 0.15s;
-}
-
-.view-btn:hover {
-  color: var(--accent);
-  background: var(--surface-input);
 }
 
 /* ─── Full-content viewer overlay ───────────────────────────────────────── */

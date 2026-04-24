@@ -372,6 +372,59 @@ ipcMain.handle('delete-group', (_event, id) => {
   return { success: true };
 });
 
+ipcMain.handle('add-to-group', (_event, { groupId, entryId }) => {
+  if (!license.isPro()) return { success: false, error: 'Pro required' };
+  const group = groups.find((g) => g.id === groupId);
+  if (!group) return { success: false };
+  if (!clipboardHistory.some((e) => e.id === entryId)) return { success: false };
+  if (!group.memberIds.includes(entryId)) {
+    group.memberIds.unshift(entryId);
+    store.set('groups', groups);
+    emitGroupsUpdated();
+  }
+  return { success: true };
+});
+
+ipcMain.handle('remove-from-group', (_event, { groupId, entryId }) => {
+  if (!license.isPro()) return { success: false };
+  const group = groups.find((g) => g.id === groupId);
+  if (!group) return { success: false };
+  const i = group.memberIds.indexOf(entryId);
+  if (i !== -1) {
+    group.memberIds.splice(i, 1);
+    store.set('groups', groups);
+    emitGroupsUpdated();
+  }
+  return { success: true };
+});
+
+// Delete a single entry from history; also prune it from any group references.
+// Free for all users — this is a basic utility, not a premium feature.
+ipcMain.handle('delete-entry', (_event, entryId) => {
+  const idx = clipboardHistory.findIndex((e) => e.id === entryId);
+  if (idx === -1) return { success: false };
+  clipboardHistory.splice(idx, 1);
+  store.set('history', clipboardHistory);
+
+  let groupsChanged = false;
+  groups.forEach((g) => {
+    const i = g.memberIds.indexOf(entryId);
+    if (i !== -1) {
+      g.memberIds.splice(i, 1);
+      groupsChanged = true;
+    }
+  });
+  if (groupsChanged) {
+    store.set('groups', groups);
+    emitGroupsUpdated();
+  }
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('history-updated', getVisibleHistory());
+  }
+  return { success: true };
+});
+
 ipcMain.handle('get-stats', () => {
   const historyTexts = clipboardHistory.filter((e) => e.type === 'text').length;
   const historyImages = clipboardHistory.filter((e) => e.type === 'image').length;
