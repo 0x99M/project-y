@@ -559,33 +559,6 @@ function render(entries) {
     time.textContent = timeAgo(entry.timestamp);
     body.appendChild(time);
 
-    // Folder chips (one per folder this entry belongs to)
-    const memberGroups = groupsData.filter((g) => g.memberIds.includes(entry.id));
-    if (memberGroups.length > 0) {
-      const chips = document.createElement('div');
-      chips.className = 'entry-chips';
-      memberGroups.forEach((group) => {
-        const chip = document.createElement('button');
-        chip.className = 'entry-chip';
-        chip.title = proActive ? `Remove from "${group.name}"` : group.name;
-        chip.innerHTML =
-          '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
-          '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
-          '</svg><span class="entry-chip-name"></span>';
-        chip.querySelector('.entry-chip-name').textContent = group.name;
-        if (proActive) {
-          chip.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            await window.clipboardManager.removeFromGroup({ groupId: group.id, entryId: entry.id });
-          });
-        } else {
-          chip.addEventListener('click', (e) => e.stopPropagation());
-        }
-        chips.appendChild(chip);
-      });
-      body.appendChild(chips);
-    }
-
     // Note input (pro only)
     const noteInput = document.createElement('input');
     noteInput.type = 'text';
@@ -626,6 +599,33 @@ function render(entries) {
       }
     });
     row.appendChild(actionsBtn);
+
+    // Folder chips: render on their own line at the row's left edge
+    const memberGroups = groupsData.filter((g) => g.memberIds.includes(entry.id));
+    if (memberGroups.length > 0) {
+      const chips = document.createElement('div');
+      chips.className = 'entry-chips';
+      memberGroups.forEach((group) => {
+        const chip = document.createElement('button');
+        chip.className = 'entry-chip';
+        chip.title = proActive ? `Remove from "${group.name}"` : group.name;
+        chip.innerHTML =
+          '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
+          '</svg><span class="entry-chip-name"></span>';
+        chip.querySelector('.entry-chip-name').textContent = group.name;
+        if (proActive) {
+          chip.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await window.clipboardManager.removeFromGroup({ groupId: group.id, entryId: entry.id });
+          });
+        } else {
+          chip.addEventListener('click', (e) => e.stopPropagation());
+        }
+        chips.appendChild(chip);
+      });
+      row.appendChild(chips);
+    }
 
     row.addEventListener('click', (e) => {
       if (e.target.classList.contains('note-input')) return;
