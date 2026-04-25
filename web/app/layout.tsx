@@ -17,7 +17,7 @@ const ubuntuMono = Ubuntu_Mono({
 export const metadata: Metadata = {
   title: "Clipmer — Offline Clipboard Manager for Linux",
   description:
-    "A fast, offline clipboard history manager for Linux. Search every copy, pin the ones you need, paste with one keystroke. Open source. Your data never leaves your machine.",
+    "A fast, offline clipboard history manager for Linux. Search every copy, organize the ones you need into folders, paste with one keystroke. Open source. Your data never leaves your machine.",
   keywords: [
     "clipboard manager linux",
     "offline clipboard history",
@@ -39,13 +39,13 @@ export const metadata: Metadata = {
     siteName: "Clipmer",
     title: "Clipmer — Offline Clipboard Manager for Linux",
     description:
-      "Never lose a copied item again. Search every copy, pin what matters, paste with one keystroke. 100% offline, open source.",
+      "Never lose a copied item again. Search every copy, organize what matters into folders, paste with one keystroke. 100% offline, open source.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Clipmer — Offline Clipboard Manager for Linux",
     description:
-      "Never lose a copied item again. Search every copy, pin what matters, paste with one keystroke. 100% offline, open source.",
+      "Never lose a copied item again. Search every copy, organize what matters into folders, paste with one keystroke. 100% offline, open source.",
   },
   metadataBase: new URL("https://clipmer.app"),
 };
@@ -70,7 +70,7 @@ export default function RootLayout({
               "@type": "SoftwareApplication",
               name: "Clipmer",
               description:
-                "An offline clipboard history manager for Linux. Search every copy, pin what matters, paste with one keystroke. 100% offline, open source, no telemetry.",
+                "An offline clipboard history manager for Linux. Search every copy, organize what matters into folders, paste with one keystroke. 100% offline, open source, no telemetry.",
               applicationCategory: "UtilitiesApplication",
               operatingSystem: "Linux",
               url: "https://clipmer.app",

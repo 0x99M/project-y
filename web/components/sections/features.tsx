@@ -45,48 +45,80 @@ function ClipboardHistoryMockup() {
   );
 }
 
-function PinnedItemsMockup() {
-  const pinned = [
-    { text: "ssh deploy@prod-server-01", starred: true },
-    { text: "STRIPE_KEY=sk_live_4eC…", starred: true },
-    { text: "docker compose up -d", starred: true },
+function FoldersMockup() {
+  const folders = [
+    { name: "All", active: false },
+    { name: "Servers", active: true },
+    { name: "Secrets", active: false },
   ];
-  const history = [
-    { text: "temporary paste content", starred: false },
-    { text: "another copied text…", starred: false },
+  const entries = [
+    { text: "ssh deploy@prod-server-01", folder: "Servers" },
+    { text: "ssh staging@10.0.0.42", folder: "Servers" },
+    { text: "kubectl --context=prod get pods", folder: "Servers" },
   ];
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-1">
-        <div className="rounded-md bg-orange/15 px-2 py-0.5 text-[10px] font-medium text-orange">
-          Pinned
-        </div>
-        <div className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-          History
-        </div>
-      </div>
-      <div className="space-y-1">
-        {pinned.map((item, i) => (
+    <div className="space-y-2.5">
+      {/* Filter pill */}
+      <motion.div
+        initial={{ opacity: 0, y: -4 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.2 }}
+        className="inline-flex items-center gap-1.5 rounded-md border border-orange/30 bg-orange/[0.08] px-2 py-1 text-[10px] text-orange"
+      >
+        <svg className="size-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3z" />
+        </svg>
+        <span className="font-medium">Servers</span>
+        <svg className="size-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+        </svg>
+      </motion.div>
+
+      {/* Dropdown */}
+      <motion.div
+        initial={{ opacity: 0, y: -4 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.35 }}
+        className="rounded-md border border-border/60 bg-[#1f1f1f] p-1 space-y-0.5 max-w-[160px]"
+      >
+        {folders.map((f) => (
+          <div
+            key={f.name}
+            className={cn(
+              "flex items-center gap-1.5 rounded px-1.5 py-1 text-[10px]",
+              f.active && "bg-orange/10 text-orange"
+            )}
+          >
+            <span className={cn("size-2", f.active ? "text-orange" : "text-muted-foreground/30")}>
+              {f.active ? "✓" : ""}
+            </span>
+            <span className={cn(!f.active && "text-foreground/70")}>{f.name}</span>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Filtered entries */}
+      <div className="space-y-1 pt-1">
+        {entries.map((item, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, x: -6 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.3 + i * 0.1 }}
-            className="flex items-center gap-2 rounded-md border border-orange/15 bg-orange/[0.04] px-2.5 py-1.5 text-xs"
+            transition={{ delay: 0.5 + i * 0.08 }}
+            className="flex items-center justify-between gap-2 rounded-md border border-border/40 bg-white/[0.02] px-2.5 py-1.5 text-xs"
           >
-            <span className="text-orange text-[10px]">&#9733;</span>
-            <span className="truncate font-mono text-foreground/80">{item.text}</span>
+            <span className="truncate font-mono text-foreground/80 text-[11px]">{item.text}</span>
+            <span className="inline-flex items-center gap-1 rounded border border-orange/20 bg-orange/[0.08] px-1 py-0.5 text-[8px] text-orange shrink-0">
+              <svg className="size-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+              </svg>
+              {item.folder}
+            </span>
           </motion.div>
-        ))}
-      </div>
-      <div className="space-y-1 opacity-40">
-        {history.map((item, i) => (
-          <div key={i} className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs">
-            <span className="text-muted-foreground text-[10px]">&#9734;</span>
-            <span className="truncate font-mono text-foreground/60">{item.text}</span>
-          </div>
         ))}
       </div>
     </div>
@@ -270,10 +302,7 @@ function MinimalViewMockup() {
           className="rounded-md border border-border/30 bg-white/[0.02] p-2 space-y-1.5"
         >
           <div className="flex items-center justify-between">
-            <div className="flex gap-1">
-              <div className="rounded bg-white/5 px-2 py-0.5 text-[9px] text-muted-foreground/40">History</div>
-              <div className="rounded bg-white/5 px-2 py-0.5 text-[9px] text-muted-foreground/40">Pinned</div>
-            </div>
+            <div className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] text-muted-foreground/40">All ▾</div>
             <div className="size-3 rounded bg-white/5" />
           </div>
           <div className="h-1.5 w-full rounded bg-white/5" />
@@ -523,9 +552,9 @@ const features = [
     mockup: ClipboardHistoryMockup,
   },
   {
-    title: "Pin what you use daily",
-    description: "SSH commands, API tokens, connection strings — star them once and they stay at the top. They won't get pushed out by the next 200 copies.",
-    mockup: PinnedItemsMockup,
+    title: "Group with folders",
+    description: "Sort SSH commands, API tokens, connection strings into named folders. Pick a folder from the filter pill and the list narrows to just that set — the rest of your history stays out of the way.",
+    mockup: FoldersMockup,
   },
   {
     title: "Find anything, instantly",

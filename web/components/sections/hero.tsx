@@ -244,11 +244,11 @@ export function Hero() {
                       </span>
                     </div>
                     {[
-                      { text: "npm install clipmer", time: "Just now", pinned: true },
-                      { text: "https://github.com/0x99M/project-y", time: "2m ago", pinned: false },
-                      { text: "export default function App() {", time: "5m ago", pinned: false },
-                      { text: "E95420", time: "12m ago", pinned: false },
-                      { text: "ssh user@192.168.1.100", time: "1h ago", pinned: true },
+                      { text: "npm install clipmer", time: "Just now", folder: "Work" },
+                      { text: "https://github.com/0x99M/project-y", time: "2m ago", folder: null },
+                      { text: "export default function App() {", time: "5m ago", folder: null },
+                      { text: "E95420", time: "12m ago", folder: null },
+                      { text: "ssh user@192.168.1.100", time: "1h ago", folder: "Servers" },
                     ].map((item, i) => (
                       <motion.div
                         key={i}
@@ -259,10 +259,15 @@ export function Hero() {
                         className="flex items-center justify-between rounded-lg px-2.5 py-2 hover:bg-surface/30 transition-colors sm:px-3 sm:py-2.5"
                       >
                         <div className="flex items-center gap-2 min-w-0 sm:gap-3">
-                          {item.pinned && (
-                            <span className="text-orange text-[10px] sm:text-xs">&#9733;</span>
-                          )}
                           <span className="text-xs truncate font-mono sm:text-sm">{item.text}</span>
+                          {item.folder && (
+                            <span className="inline-flex items-center gap-1 rounded-md border border-orange/20 bg-orange/[0.08] px-1.5 py-0.5 text-[9px] sm:text-[10px] text-orange shrink-0">
+                              <svg className="size-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                              </svg>
+                              {item.folder}
+                            </span>
+                          )}
                         </div>
                         <span className="text-[10px] text-muted-foreground ml-2 whitespace-nowrap sm:text-xs sm:ml-3">{item.time}</span>
                       </motion.div>

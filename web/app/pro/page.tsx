@@ -17,7 +17,7 @@ const PADDLE_ENV = (process.env.NEXT_PUBLIC_PADDLE_ENV || "sandbox") as
 
 const features = [
   { name: "Clipboard history", free: "25 text entries", pro: "200 entries, text + images" },
-  { name: "Pinned items", free: false, pro: true },
+  { name: "Folders", free: false, pro: true },
   { name: "Inline notes", free: false, pro: true },
   { name: "Smart search", free: "Content only", pro: "Content + notes" },
   { name: "Auto-paste (Wayland)", free: false, pro: true },
