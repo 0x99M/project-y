@@ -116,10 +116,6 @@ body.minimal #filter-bar {
   display: none;
 }
 
-body.minimal #footer {
-  display: none;
-}
-
 body.minimal #search-bar {
   -webkit-app-region: drag;
 }
@@ -127,34 +123,6 @@ body.minimal #search-bar {
 body.minimal #search,
 body.minimal #search-mode-badge {
   -webkit-app-region: no-drag;
-}
-
-body.minimal #minimal-settings-btn {
-  display: flex;
-}
-
-/* ─── Floating settings button (minimal view) ──────────────────────────────── */
-
-#minimal-settings-btn {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 32px;
-  height: 32px;
-  background: var(--accent);
-  border: none;
-  border-radius: 8px 0 0 0;
-  color: #fff;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  transition: background 150ms ease;
-}
-
-#minimal-settings-btn:hover {
-  background: var(--accent-hover);
 }
 
 /* ─── Header (CSD headerbar) ────────────────────────────────────────────────── */
@@ -464,24 +432,6 @@ body.expanded .entry-image-preview {
   font-weight: 400;
   color: var(--text-muted);
   margin-top: 4px;
-}
-
-/* ─── Footer ─────────────────────────────────────────────────────────────────── */
-
-#footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 16px;
-  background: var(--surface-base);
-  border-top: 1px solid var(--border-subtle);
-  flex-shrink: 0;
-}
-
-#footer-hint {
-  font-size: var(--font-size-small);
-  font-weight: 400;
-  color: var(--text-muted);
 }
 
 #clear-all {
@@ -936,44 +886,141 @@ body.expanded .entry-image-preview {
   font-size: var(--font-size-label);
 }
 
-/* ─── Settings button ───────────────────────────────────────────────────────── */
+/* ─── Floating action button ─────────────────────────────────────────────── */
 
-#settings-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+#fab {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 50;
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+body.settings-open #fab,
+body.folders-open #fab {
+  display: none;
+}
+
+#fab-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+#fab:hover #fab-actions,
+#fab:focus-within #fab-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.fab-action {
+  display: inline-flex;
   align-items: center;
-  transition: color 150ms ease;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: var(--font-size-label);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: color 150ms ease, border-color 150ms ease;
 }
 
-#settings-btn:hover {
+.fab-action:hover {
   color: var(--accent);
+  border-color: var(--accent);
 }
 
-#settings-back-btn {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 32px;
-  height: 32px;
+.fab-action svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.fab-trigger {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: var(--accent);
-  border: none;
-  border-radius: 8px 0 0 0;
   color: #fff;
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
-  transition: background 150ms ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: background 150ms ease, transform 150ms ease;
 }
 
-#settings-back-btn:hover {
+.fab-trigger:hover {
   background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+/* ─── Folders view ───────────────────────────────────────────────────────── */
+
+#folders-view {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.folders-view-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.folders-view-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+#folders-view-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+#settings-back-btn,
+#folders-back-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: background 150ms ease, transform 150ms ease;
+  z-index: 50;
+}
+
+#settings-back-btn:hover,
+#folders-back-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
 }
 
 /* ─── Settings view ─────────────────────────────────────────────────────────── */

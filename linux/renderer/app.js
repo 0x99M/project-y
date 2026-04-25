@@ -6,6 +6,7 @@ let searchMode = 'content';
 let activeFilter = 'all';  // 'all' | group.id
 let filterMenuOpen = false;
 let settingsOpen = false;
+let foldersViewOpen = false;
 let autoScrollTop = true;
 let autoClearSearch = true;
 let closeSettingsOnOpen = true;
@@ -90,6 +91,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateFilterLabel();
     // Refresh the main list (chips may have changed)
     applyFilter();
+    // Refresh the folders view if it's currently open
+    if (foldersViewOpen) {
+      renderFolders(document.getElementById('folders-view-content'));
+    }
   });
 
   window.clipboardManager.onFilterReset(() => {
@@ -120,41 +125,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     else openFilterMenu();
   });
 
-  document.getElementById('settings-btn').addEventListener('click', async () => {
-    settingsOpen = !settingsOpen;
-    const settingsView = document.getElementById('settings-view');
-    const filterBar = document.getElementById('filter-bar');
-    const searchBar = document.getElementById('search-bar');
-    const footer = document.getElementById('footer');
-
-    const minimalBtn = document.getElementById('minimal-settings-btn');
-    const isMinimal = document.body.classList.contains('minimal');
-
-    if (settingsOpen) {
-      listEl.style.display = 'none';
-      emptyEl.style.display = 'none';
-      filterBar.style.display = 'none';
-      searchBar.style.display = 'none';
-      footer.style.display = 'none';
-      minimalBtn.style.display = 'none';
-      settingsView.style.display = '';
-      await renderStats();
-    } else {
-      settingsView.style.display = 'none';
-      listEl.style.display = '';
-      searchBar.style.display = '';
-      if (!isMinimal) {
-        filterBar.style.display = '';
-        footer.style.display = '';
-      }
-      minimalBtn.style.display = '';
-      applyFilter();
-    }
+  // FAB — block mousedown focus so clicking the trigger doesn't trap the
+  // menu open via :focus-within. Click events still fire normally.
+  document.getElementById('fab').addEventListener('mousedown', (e) => {
+    e.preventDefault();
+  });
+  document.getElementById('fab-folders').addEventListener('click', () => {
+    if (settingsOpen) toggleSettings();
+    if (!foldersViewOpen) toggleFoldersView();
+  });
+  document.getElementById('fab-settings').addEventListener('click', () => {
+    if (foldersViewOpen) toggleFoldersView();
+    if (!settingsOpen) toggleSettings();
   });
 
   // Settings back button
   document.getElementById('settings-back-btn').addEventListener('click', () => {
-    document.getElementById('settings-btn').click();
+    toggleSettings();
+  });
+
+  // Folders back button
+  document.getElementById('folders-back-btn').addEventListener('click', () => {
+    toggleFoldersView();
   });
 
   // Settings tab switching
@@ -170,11 +162,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   minimalToggle.addEventListener('change', () => {
     document.body.classList.toggle('minimal', minimalToggle.checked);
     window.clipboardManager.setMinimalView(minimalToggle.checked);
-  });
-
-  // Floating settings button (minimal view)
-  document.getElementById('minimal-settings-btn').addEventListener('click', () => {
-    document.getElementById('settings-btn').click();
   });
 
   // Font size slider
@@ -231,12 +218,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
 
-    // Close settings view if the user enabled that behavior
+    // Close settings / folders view if the user enabled that behavior
     if (settingsOpen && closeSettingsOnOpen) {
-      document.getElementById('settings-btn').click();
+      toggleSettings();
+    }
+    if (foldersViewOpen && closeSettingsOnOpen) {
+      toggleFoldersView();
     }
 
-    if (!settingsOpen) {
+    if (!settingsOpen && !foldersViewOpen) {
       if (autoClearSearch) {
         searchEl.value = '';
       }
@@ -661,6 +651,230 @@ async function selectEntry(index) {
 
 // ─── Settings ───────────────────────────────────────────────────────────────────
 
+async function toggleSettings() {
+  // Folders and Settings are mutually exclusive; close folders first if needed
+  if (foldersViewOpen) toggleFoldersView();
+
+  settingsOpen = !settingsOpen;
+  document.body.classList.toggle('settings-open', settingsOpen);
+  const settingsView = document.getElementById('settings-view');
+  const filterBar = document.getElementById('filter-bar');
+  const searchBar = document.getElementById('search-bar');
+  const isMinimal = document.body.classList.contains('minimal');
+
+  if (settingsOpen) {
+    listEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+    filterBar.style.display = 'none';
+    searchBar.style.display = 'none';
+    settingsView.style.display = '';
+    await renderStats();
+  } else {
+    settingsView.style.display = 'none';
+    listEl.style.display = '';
+    searchBar.style.display = '';
+    if (!isMinimal) filterBar.style.display = '';
+    applyFilter();
+  }
+}
+
+function toggleFoldersView() {
+  if (settingsOpen) toggleSettings();
+
+  foldersViewOpen = !foldersViewOpen;
+  document.body.classList.toggle('folders-open', foldersViewOpen);
+  const view = document.getElementById('folders-view');
+  const filterBar = document.getElementById('filter-bar');
+  const searchBar = document.getElementById('search-bar');
+  const isMinimal = document.body.classList.contains('minimal');
+
+  if (foldersViewOpen) {
+    listEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+    filterBar.style.display = 'none';
+    searchBar.style.display = 'none';
+    view.style.display = '';
+    renderFolders(document.getElementById('folders-view-content'));
+  } else {
+    view.style.display = 'none';
+    listEl.style.display = '';
+    searchBar.style.display = '';
+    if (!isMinimal) filterBar.style.display = '';
+    applyFilter();
+  }
+}
+
+// ─── Folders view ──────────────────────────────────────────────────────────────
+
+function renderFolders(container) {
+  const target = container || document.getElementById('folders-view-content');
+  if (!target) return;
+  target.textContent = '';
+
+  if (!proActive) {
+    const card = document.createElement('div');
+    card.className = 'folders-upgrade';
+    card.innerHTML =
+      '<div class="folders-upgrade-icon">' +
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
+        '</svg>' +
+      '</div>' +
+      '<div class="folders-upgrade-title">Folders is a Pro feature</div>' +
+      '<div class="folders-upgrade-body">Organize your clipboard entries into named folders. Create, rename, and delete folders with Clipmer Pro.</div>' +
+      '<button class="folders-upgrade-btn">Get Clipmer Pro</button>';
+    card.querySelector('.folders-upgrade-btn').addEventListener('click', () => {
+      window.open('https://clipmer.app/pro', '_blank');
+    });
+    target.appendChild(card);
+    return;
+  }
+
+  const createRow = document.createElement('button');
+  createRow.className = 'folder-create-btn';
+  createRow.innerHTML =
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+    '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>' +
+    '</svg><span>New folder</span>';
+  createRow.addEventListener('click', () => startCreateFolderInline(createRow, target));
+  target.appendChild(createRow);
+
+  if (groupsData.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'folder-empty';
+    empty.textContent = 'No folders yet. Click "New folder" to create one.';
+    target.appendChild(empty);
+    return;
+  }
+
+  groupsData.forEach((group) => {
+    const row = document.createElement('div');
+    row.className = 'folder-row';
+    row.dataset.id = group.id;
+
+    const icon = document.createElement('span');
+    icon.className = 'folder-icon';
+    icon.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' +
+      '</svg>';
+    row.appendChild(icon);
+
+    const name = document.createElement('span');
+    name.className = 'folder-name';
+    name.textContent = group.name;
+    row.appendChild(name);
+
+    const actions = document.createElement('span');
+    actions.className = 'folder-actions';
+
+    const renameBtn = document.createElement('button');
+    renameBtn.className = 'folder-action-btn';
+    renameBtn.title = 'Rename';
+    renameBtn.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>' +
+      '</svg>';
+    renameBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startRenameFolderInline(row, group);
+    });
+    actions.appendChild(renameBtn);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'folder-action-btn folder-action-danger';
+    deleteBtn.title = 'Delete';
+    deleteBtn.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>' +
+      '</svg>';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleDeleteFolder(group);
+    });
+    actions.appendChild(deleteBtn);
+
+    row.appendChild(actions);
+    target.appendChild(row);
+  });
+}
+
+function startCreateFolderInline(anchorBtn, container) {
+  if (!proActive) return;
+  const target = container || document.getElementById('folders-view-content');
+  if (!target || target.querySelector('.folder-inline-input')) return;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'folder-inline-input';
+  input.placeholder = 'Folder name';
+  target.insertBefore(input, anchorBtn.nextSibling);
+  input.focus();
+
+  const commit = async () => {
+    input.removeEventListener('blur', commit);
+    const value = input.value.trim();
+    if (!value) { input.remove(); return; }
+    const result = await window.clipboardManager.createGroup(value);
+    if (!result || !result.success) {
+      input.remove();
+      if (result && result.error) alert(result.error);
+    }
+  };
+  const cancel = () => {
+    input.removeEventListener('blur', commit);
+    input.remove();
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+  input.addEventListener('blur', commit);
+}
+
+function startRenameFolderInline(row, group) {
+  if (!proActive) return;
+  const nameEl = row.querySelector('.folder-name');
+  if (!nameEl || row.querySelector('.folder-inline-input')) return;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'folder-inline-input folder-rename-input';
+  input.value = group.name;
+  nameEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  const commit = async () => {
+    input.removeEventListener('blur', commit);
+    const value = input.value.trim();
+    if (value && value !== group.name) {
+      const result = await window.clipboardManager.renameGroup({ id: group.id, name: value });
+      if (!result || !result.success) {
+        if (result && result.error) alert(result.error);
+        renderFolders();
+      }
+    } else {
+      renderFolders();
+    }
+  };
+  const cancel = () => {
+    input.removeEventListener('blur', commit);
+    renderFolders();
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+  input.addEventListener('blur', commit);
+}
+
+async function handleDeleteFolder(group) {
+  if (!proActive) return;
+  const ok = confirm(`Delete folder "${group.name}"?`);
+  if (!ok) return;
+  await window.clipboardManager.deleteGroup(group.id);
+}
+
 async function renderStats() {
   const stats = await window.clipboardManager.getStats();
   const el = document.getElementById('stats-content');
@@ -804,11 +1018,20 @@ function handleKeyDown(e) {
     return;
   }
 
+  // In folders view
+  if (foldersViewOpen) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      toggleFoldersView();
+    }
+    return;
+  }
+
   // In settings
   if (settingsOpen) {
     if (e.key === 'Escape' || (e.ctrlKey && e.key === ',')) {
       e.preventDefault();
-      document.getElementById('settings-btn').click();
+      toggleSettings();
       return;
     }
     // Tab / Shift+Tab cycles through settings tabs
@@ -852,7 +1075,7 @@ function handleKeyDown(e) {
   // Ctrl+,: toggle settings
   if (e.ctrlKey && e.key === ',') {
     e.preventDefault();
-    document.getElementById('settings-btn').click();
+    toggleSettings();
     return;
   }
 
