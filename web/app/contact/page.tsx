@@ -25,8 +25,8 @@ export default function ContactPage() {
         <a href="mailto:support@clipmer.app">support@clipmer.app</a>
       </p>
       <p>
-        Please note that all sales are final. See our{" "}
-        <a href="/refund">refund policy</a> for details.
+        Refunds are available within 14 days of purchase — see our{" "}
+        <a href="/refund">refund policy</a> for the request process.
       </p>
 
       <h2>Bug Reports</h2>

@@ -105,15 +105,28 @@ export default function TermsPage() {
 
       <h2 id="refunds">Refunds</h2>
       <p>
-        All Clipmer Pro purchases are <strong>final and non-refundable</strong>.
-        Clipmer ships a fully functional free version on the same codebase, so
-        you can confirm compatibility with your system before upgrading. See
-        the dedicated <a href="/refund">Refund Policy</a> for details.
+        Clipmer Pro purchases are refundable within{" "}
+        <strong>14 days of the date of purchase</strong>. To request a
+        refund, email{" "}
+        <a href="mailto:support@clipmer.app">support@clipmer.app</a> from
+        the address you used to purchase, including your order number from
+        the Paddle receipt. Approved refunds are processed by Paddle within
+        5–10 business days. See our dedicated{" "}
+        <a href="/refund">Refund Policy</a> for the full process.
+      </p>
+      <p>
+        We strongly recommend installing the free version of Clipmer first
+        to confirm compatibility with your system before upgrading.
+      </p>
+      <p>
+        We reserve the right to decline refund requests that appear abusive
+        — for example, repeated buy-and-refund cycles, or license keys
+        that have been shared, resold, or publicly posted.
       </p>
       <p>
         If you were charged in error or did not receive your license key,
         contact <a href="mailto:support@clipmer.app">support@clipmer.app</a>{" "}
-        and we will resolve the issue.
+        and we will resolve the issue regardless of the 14-day window.
       </p>
 
       <h2>Revocation</h2>
