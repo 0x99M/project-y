@@ -346,8 +346,8 @@ export default function ProPage() {
             <div className="divide-y divide-border">
               {[
                 {
-                  q: "Why pay if Clipmer is open source?",
-                  a: "The code is free — you can read it, audit it, build it yourself. The Pro license pays for the pre-built binary, the ongoing maintenance, and the feature unlocks in the distributed app. You're paying for convenience and continued development, not the source.",
+                  q: "Why is the source on GitHub then?",
+                  a: "Because your clipboard handles passwords, tokens, and private snippets — you should be able to verify there's no telemetry or hidden network call. The source is published for transparency and security audit. It's source-available, not open source: redistribution, derivative works, and commercial forks aren't permitted. Your $9 pays for the pre-built binary, the Pro feature unlocks, and ongoing development.",
                 },
                 {
                   q: "Is this a subscription?",

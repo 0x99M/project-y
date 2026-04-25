@@ -74,7 +74,7 @@ export default async function Image() {
             textAlign: "center",
           }}
         >
-          Offline clipboard manager for Linux &middot; Open source
+          Offline clipboard manager for Linux &middot; No telemetry
         </div>
 
         {/* URL */}

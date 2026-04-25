@@ -1,0 +1,72 @@
+Clipmer Source-Available License v1.0
+=======================================
+
+Copyright (c) 2026 0x99M. All rights reserved.
+
+The source code in this repository ("the Software") is made available under the
+following terms.
+
+
+PERMITTED USES
+
+You may, free of charge, do any of the following with the Software:
+
+  1. View, read, and study the source code for transparency, security review,
+     audit, and educational purposes.
+
+  2. Build the Software from source and run it on devices that you personally
+     own and control, for your own personal use.
+
+
+PROHIBITED USES
+
+Without prior written permission from the copyright holder, you may not:
+
+  1. Redistribute, publish, sell, sublicense, or otherwise make available the
+     source code or any compiled or executable form of the Software, in whole
+     or in part, including in modified form.
+
+  2. Use the Software, in source or compiled form, to provide a hosted, managed,
+     or commercial service to third parties.
+
+  3. Create or distribute derivative works, forks, ports, or competing products
+     based on the Software.
+
+  4. Disable, remove, bypass, or otherwise circumvent the license-validation
+     system, the distinction between the free and Pro feature sets, or any
+     other technical mechanism intended to enforce these terms.
+
+  5. Remove, hide, or alter any copyright, trademark, attribution, or license
+     notice contained in the Software.
+
+
+PRE-BUILT BINARIES
+
+This license governs the source code in this repository only. Pre-built
+binaries distributed by the copyright holder (for example via the Clipmer
+website or the project's GitHub Releases page) are licensed separately under
+the Clipmer Terms of Service available at https://clipmer.app/terms.
+
+
+WARRANTY DISCLAIMER
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+
+LIMITATION OF LIABILITY
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+
+
+COMMERCIAL LICENSING
+
+For commercial licensing, redistribution rights, custom arrangements, or any
+use not covered by this license, contact: support@clipmer.app
+
+This license is not an open source license as defined by the Open Source
+Initiative.

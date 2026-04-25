@@ -62,4 +62,7 @@ This uploads the binaries to GitHub Releases and updates all version references 
 
 ## License
 
-MIT
+Source-available. The code in this repository is provided for transparency
+and personal use; redistribution, derivative works, and commercial forks are
+not permitted. See [LICENSE](LICENSE) for the full terms. This is not an
+OSI-approved open source license.

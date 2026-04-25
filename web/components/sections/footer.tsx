@@ -36,7 +36,7 @@ export function Footer() {
             <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link href="/refund" className="hover:text-foreground transition-colors">Refunds</Link>
             <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
-            <span>MIT License</span>
+            <span>&copy; 0x99M</span>
           </div>
         </div>
       </div>

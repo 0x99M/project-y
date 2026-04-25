@@ -124,7 +124,7 @@ export function Hero() {
                     animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   />
-                  Open source &middot; 100% offline
+                  100% offline &middot; No telemetry
                 </Badge>
               </motion.div>
             </FadeUp>

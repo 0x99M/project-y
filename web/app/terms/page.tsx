@@ -22,9 +22,9 @@ export default function TermsPage() {
       <h2>Nature of the Service</h2>
       <p>
         Clipmer is a <strong>fully automated software product</strong>. The
-        free version is open source, distributed under the MIT License. The
-        Pro version is delivered as an automatically generated license key
-        emailed to you immediately after payment.
+        free version of the desktop app is provided free of charge for personal
+        use. The Pro version is delivered as an automatically generated license
+        key emailed to you immediately after payment.
       </p>
       <p>
         <strong>No human-driven services are involved</strong> in the
@@ -50,9 +50,19 @@ export default function TermsPage() {
 
       <h2>License</h2>
       <p>
-        Clipmer is open-source software released under the{" "}
-        <strong>MIT License</strong>. You may use, modify, and distribute the
-        free version without restriction.
+        Clipmer is <strong>source-available, not open source</strong>. The
+        source code is published on GitHub for transparency and security audit
+        and is governed by the{" "}
+        <a
+          href="https://github.com/0x99M/project-y/blob/master/LICENSE"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Clipmer Source-Available License
+        </a>
+        . You may read and audit the source, and you may build it from source
+        for your own personal use. Redistribution, derivative works, hosted
+        services, and commercial forks require prior written permission.
       </p>
       <p>
         A Clipmer Pro license key grants <strong>one individual</strong> access
@@ -63,15 +73,33 @@ export default function TermsPage() {
 
       <h2>Permitted Use</h2>
       <ul>
-        <li>Use Clipmer on any number of personal devices you own</li>
-        <li>Build from source for personal or commercial use</li>
-        <li>Modify the source code under the MIT License terms</li>
+        <li>
+          Run the official Clipmer binary (free or Pro) on any number of
+          personal devices you own
+        </li>
+        <li>
+          Read and audit the source code published on GitHub
+        </li>
+        <li>
+          Build from source for your own personal use on devices you own
+        </li>
       </ul>
 
       <h2>Prohibited Use</h2>
       <ul>
+        <li>
+          Redistributing the source code, the official binary, or any modified
+          version, in whole or in part
+        </li>
         <li>Sharing or publicly posting license keys</li>
-        <li>Circumventing the license validation system for commercial gain</li>
+        <li>
+          Disabling, removing, or circumventing the license validation system
+          or the distinction between the free and Pro feature sets
+        </li>
+        <li>
+          Hosting Clipmer as a service for third parties or selling derivative
+          products
+        </li>
         <li>Misrepresenting Clipmer as your own product</li>
       </ul>
 
