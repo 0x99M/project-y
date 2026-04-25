@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Check, X, Zap, Shield, Lock } from "lucide-react";
@@ -70,10 +70,6 @@ function Reveal({
 }
 
 export default function ProPage() {
-  const [resendEmail, setResendEmail] = useState("");
-  const [resendStatus, setResendStatus] = useState<
-    "idle" | "sending" | "sent" | "error"
-  >("idle");
   const paddleRef = useRef<Paddle | null>(null);
   const paddleReady = BUY_PRO_ENABLED && PADDLE_CLIENT_TOKEN && PADDLE_PRICE_ID;
 
@@ -103,28 +99,6 @@ export default function ProPage() {
         successUrl: `${window.location.origin}/thank-you`,
       },
     });
-  };
-
-  const handleResend = async () => {
-    if (!resendEmail.includes("@")) return;
-    setResendStatus("sending");
-    try {
-      const res = await fetch("/api/resend-license", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resendEmail }),
-      });
-      // 200 = sent (or silently skipped — we can't tell, by design).
-      // 429 = rate-limited; treat as success in the UI to avoid leaking
-      // customer status. Anything else (network / 5xx) shows an error.
-      if (res.ok || res.status === 429) {
-        setResendStatus("sent");
-      } else {
-        setResendStatus("error");
-      }
-    } catch {
-      setResendStatus("error");
-    }
   };
 
   return (
@@ -235,10 +209,10 @@ export default function ProPage() {
                   <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
                 </Link>
                 <a
-                  href="#resend"
+                  href="#lost-key"
                   className="group inline-flex items-center gap-1 text-orange underline underline-offset-4 decoration-orange/30 hover:decoration-orange transition-colors"
                 >
-                  Already bought? Resend key
+                  Lost your key?
                   <span className="transition-transform group-hover:translate-x-0.5">&rarr;</span>
                 </a>
               </div>
@@ -301,51 +275,25 @@ export default function ProPage() {
           </div>
         </Reveal>
 
-        {/* ── Resend license ── */}
+        {/* ── Lost your license key? ── */}
         <Reveal delay={0.1}>
-          <div id="resend" className="mx-auto max-w-md rounded-xl border border-border bg-card p-6 mb-24 scroll-mt-20">
-            <h3 className="font-semibold mb-1">Lost your license key?</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Enter your purchase email and we&apos;ll send it again.
+          <div
+            id="lost-key"
+            className="mx-auto max-w-md rounded-xl border border-border bg-card p-6 mb-24 scroll-mt-20"
+          >
+            <h3 className="font-semibold mb-2">Lost your license key?</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Email{" "}
+              <a
+                href="mailto:support@clipmer.app"
+                className="text-orange underline underline-offset-4 decoration-orange/30 hover:decoration-orange transition-colors"
+              >
+                support@clipmer.app
+              </a>{" "}
+              from the address you used to purchase. We&apos;ll verify your
+              order in Paddle and re-issue your key &mdash; typically within
+              7 days.
             </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="you@email.com"
-                value={resendEmail}
-                onChange={(e) => setResendEmail(e.target.value)}
-                className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-orange transition-colors"
-              />
-              <button
-                onClick={handleResend}
-                disabled={resendStatus === "sending"}
-                className={cn(
-                  buttonVariants({ size: "default" }),
-                  "bg-orange text-white hover:bg-orange-hover"
-                )}
-              >
-                {resendStatus === "sending" ? "Sending..." : "Resend"}
-              </button>
-            </div>
-            {resendStatus === "sent" && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-sm text-muted-foreground mt-3"
-              >
-                If your email is on file, we&apos;ll send your license key
-                shortly. Check your inbox (and spam) in a few minutes.
-              </motion.p>
-            )}
-            {resendStatus === "error" && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-sm text-red-400 mt-3"
-              >
-                Something went wrong. Try again or contact support.
-              </motion.p>
-            )}
           </div>
         </Reveal>
 

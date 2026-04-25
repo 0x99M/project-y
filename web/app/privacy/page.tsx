@@ -48,9 +48,10 @@ export default function PrivacyPage() {
 
       <h2>Email</h2>
       <p>
-        We send exactly one email when you purchase a license: your license key.
-        If you request a key resend, we send one additional email. We do not
-        send marketing emails, newsletters, or promotional content.
+        We send exactly one email when you purchase a license: your license
+        key. If you lose your license email and we re-issue your key via
+        support, we send one additional email. We do not send marketing
+        emails, newsletters, or promotional content.
       </p>
 
       <h2>Data Deletion</h2>

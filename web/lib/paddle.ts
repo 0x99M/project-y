@@ -1,7 +1,5 @@
-// Paddle REST helpers. The webhook and the resend endpoint both talk to
-// Paddle directly via fetch — these helpers centralize that.
-
-const PRICE_ID = process.env.NEXT_PUBLIC_PADDLE_PRICE_ID;
+// Paddle REST helpers. The webhook talks to Paddle directly via fetch —
+// this module centralizes the auth/error-handling boilerplate.
 
 export function getPaddleApiBase(): string {
   const env = process.env.NEXT_PUBLIC_PADDLE_ENV || "sandbox";
@@ -50,28 +48,3 @@ export async function resolveCustomerEmail(data: {
   return json?.data?.email ?? null;
 }
 
-// Returns true iff `email` matches a Paddle customer with at least one
-// completed transaction containing the configured Pro price ID.
-export async function emailHasProPurchase(email: string): Promise<boolean> {
-  if (!PRICE_ID) {
-    console.error("[paddle] NEXT_PUBLIC_PADDLE_PRICE_ID not set");
-    return false;
-  }
-
-  const lookup = await paddleGet<{
-    data?: { id: string; email: string }[];
-  }>(`/customers?email=${encodeURIComponent(email)}`);
-  const customer = lookup?.data?.find(
-    (c) => c.email.toLowerCase() === email.toLowerCase()
-  );
-  if (!customer) return false;
-
-  const txs = await paddleGet<{
-    data?: { status: string; items?: { price?: { id?: string } }[] }[];
-  }>(`/transactions?customer_id=${customer.id}&status=completed&per_page=50`);
-  if (!txs?.data) return false;
-
-  return txs.data.some((tx) =>
-    tx.items?.some((it) => it.price?.id === PRICE_ID)
-  );
-}

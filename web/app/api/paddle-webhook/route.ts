@@ -61,11 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     const licenseKey = generateLicenseKey(email, privateKey);
-    const result = await sendLicenseEmail({
-      to: email,
-      licenseKey,
-      kind: "purchase",
-    });
+    const result = await sendLicenseEmail({ to: email, licenseKey });
 
     if (!result.ok) {
       console.error(

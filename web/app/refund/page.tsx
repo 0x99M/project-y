@@ -35,7 +35,7 @@ export default function RefundPage() {
           note about why you&apos;re requesting a refund.
         </li>
         <li>
-          We typically respond within <strong>1–2 business days</strong>.
+          We typically respond within <strong>7 days</strong>.
         </li>
       </ol>
       <p>

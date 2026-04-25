@@ -76,23 +76,23 @@ export default function ThankYouPage() {
           <h2 className="font-semibold mb-3">Didn&apos;t receive the email?</h2>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
             Sometimes emails take a few minutes to arrive. If it&apos;s been
-            more than 10 minutes and you&apos;ve checked spam, you can have it
-            resent below — or email{" "}
+            more than 10 minutes and you&apos;ve checked spam, email{" "}
             <a
               href="mailto:support@clipmer.app"
               className="text-orange hover:underline"
             >
               support@clipmer.app
             </a>{" "}
-            and we&apos;ll help within a week.
+            from your purchase address and we&apos;ll re-issue your key
+            &mdash; typically within 7 days.
           </p>
-          <Link
-            href="/pro#resend"
+          <a
+            href="mailto:support@clipmer.app"
             className="inline-flex items-center gap-1.5 text-sm text-orange hover:underline"
           >
-            Resend license key
+            Contact support
             <span aria-hidden>&rarr;</span>
-          </Link>
+          </a>
         </div>
 
         {/* Back */}
