@@ -114,7 +114,14 @@ export default function ProPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resendEmail }),
       });
-      setResendStatus(res.ok ? "sent" : "error");
+      // 200 = sent (or silently skipped — we can't tell, by design).
+      // 429 = rate-limited; treat as success in the UI to avoid leaking
+      // customer status. Anything else (network / 5xx) shows an error.
+      if (res.ok || res.status === 429) {
+        setResendStatus("sent");
+      } else {
+        setResendStatus("error");
+      }
     } catch {
       setResendStatus("error");
     }
@@ -324,9 +331,10 @@ export default function ProPage() {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-sm text-green-500 mt-3"
+                className="text-sm text-muted-foreground mt-3"
               >
-                License key sent! Check your email.
+                If your email is on file, we&apos;ll send your license key
+                shortly. Check your inbox (and spam) in a few minutes.
               </motion.p>
             )}
             {resendStatus === "error" && (
