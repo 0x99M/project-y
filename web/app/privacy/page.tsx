@@ -10,6 +10,13 @@ export default function PrivacyPage() {
     <LegalLayout title="Privacy Policy">
       <p>Last updated: April 2026</p>
 
+      <p>
+        Clipmer is operated by <strong>0x99M</strong> (&quot;we&quot;,
+        &quot;our&quot;, or &quot;us&quot;). This Privacy Policy explains what
+        we do — and don&apos;t — collect when you use the Clipmer desktop
+        application, the clipmer.app website, and the Pro license process.
+      </p>
+
       <h2>The Desktop App</h2>
       <p>
         <strong>Clipmer operates entirely offline.</strong> The desktop
@@ -57,6 +64,9 @@ export default function PrivacyPage() {
       <p>
         For privacy-related questions:{" "}
         <a href="mailto:support@clipmer.app">support@clipmer.app</a>
+      </p>
+      <p>
+        <strong>Legal Entity:</strong> Clipmer is operated by 0x99M.
       </p>
     </LegalLayout>
   );
