@@ -14,6 +14,10 @@ const PADDLE_PRICE_ID = process.env.NEXT_PUBLIC_PADDLE_PRICE_ID;
 const PADDLE_ENV = (process.env.NEXT_PUBLIC_PADDLE_ENV || "sandbox") as
   | "sandbox"
   | "production";
+// Master switch for the Buy Pro button. Default off → "Coming soon".
+// Set NEXT_PUBLIC_BUY_PRO_ENABLED=true to go live (requires the Paddle
+// credentials above).
+const BUY_PRO_ENABLED = process.env.NEXT_PUBLIC_BUY_PRO_ENABLED === "true";
 
 const features = [
   { name: "Clipboard history", free: "25 text entries", pro: "200 entries, text + images" },
@@ -71,7 +75,7 @@ export default function ProPage() {
     "idle" | "sending" | "sent" | "error"
   >("idle");
   const paddleRef = useRef<Paddle | null>(null);
-  const paddleReady = PADDLE_CLIENT_TOKEN && PADDLE_PRICE_ID;
+  const paddleReady = BUY_PRO_ENABLED && PADDLE_CLIENT_TOKEN && PADDLE_PRICE_ID;
 
   useEffect(() => {
     if (!paddleReady) return;
