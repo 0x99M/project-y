@@ -658,14 +658,11 @@ async function toggleSettings() {
   settingsOpen = !settingsOpen;
   document.body.classList.toggle('settings-open', settingsOpen);
   const settingsView = document.getElementById('settings-view');
-  const filterBar = document.getElementById('filter-bar');
   const searchBar = document.getElementById('search-bar');
-  const isMinimal = document.body.classList.contains('minimal');
 
   if (settingsOpen) {
     listEl.style.display = 'none';
     emptyEl.style.display = 'none';
-    filterBar.style.display = 'none';
     searchBar.style.display = 'none';
     settingsView.style.display = '';
     await renderStats();
@@ -673,7 +670,6 @@ async function toggleSettings() {
     settingsView.style.display = 'none';
     listEl.style.display = '';
     searchBar.style.display = '';
-    if (!isMinimal) filterBar.style.display = '';
     applyFilter();
   }
 }
@@ -684,14 +680,11 @@ function toggleFoldersView() {
   foldersViewOpen = !foldersViewOpen;
   document.body.classList.toggle('folders-open', foldersViewOpen);
   const view = document.getElementById('folders-view');
-  const filterBar = document.getElementById('filter-bar');
   const searchBar = document.getElementById('search-bar');
-  const isMinimal = document.body.classList.contains('minimal');
 
   if (foldersViewOpen) {
     listEl.style.display = 'none';
     emptyEl.style.display = 'none';
-    filterBar.style.display = 'none';
     searchBar.style.display = 'none';
     view.style.display = '';
     renderFolders(document.getElementById('folders-view-content'));
@@ -699,7 +692,6 @@ function toggleFoldersView() {
     view.style.display = 'none';
     listEl.style.display = '';
     searchBar.style.display = '';
-    if (!isMinimal) filterBar.style.display = '';
     applyFilter();
   }
 }
@@ -925,6 +917,7 @@ async function renderStats() {
 function applyFilter() {
   const query = searchEl.value.toLowerCase().trim();
   selectedIndex = -1;
+  updateFilterLabel();
 
   if (!query) {
     filteredData = [];
@@ -1179,14 +1172,36 @@ function debounce(fn, ms) {
 // ─── Filter dropdown ────────────────────────────────────────────────────────────
 
 function updateFilterLabel() {
-  const label = document.getElementById('filter-label');
-  if (!label) return;
+  const btn = document.getElementById('filter-btn');
+  const icon = document.getElementById('filter-btn-icon');
+  const count = document.getElementById('filter-count');
+  if (!btn || !icon || !count) return;
+
   if (activeFilter === 'all') {
-    label.textContent = 'All';
-  } else {
-    const g = groupsData.find((x) => x.id === activeFilter);
-    label.textContent = g ? g.name : 'All';
+    btn.classList.remove('active');
+    btn.title = 'Filter entries';
+    icon.hidden = false;
+    count.hidden = true;
+    count.textContent = '';
+    return;
   }
+
+  const group = groupsData.find((g) => g.id === activeFilter);
+  if (!group) {
+    btn.classList.remove('active');
+    btn.title = 'Filter entries';
+    icon.hidden = false;
+    count.hidden = true;
+    return;
+  }
+
+  const ids = new Set(historyData.map((e) => e.id));
+  const n = group.memberIds.filter((id) => ids.has(id)).length;
+  btn.classList.add('active');
+  btn.title = `Filter: ${group.name}`;
+  icon.hidden = true;
+  count.hidden = false;
+  count.textContent = String(n);
 }
 
 function openFilterMenu() {

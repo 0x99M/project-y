@@ -112,16 +112,13 @@ body.minimal #header {
   display: none;
 }
 
-body.minimal #filter-bar {
-  display: none;
-}
-
 body.minimal #search-bar {
   -webkit-app-region: drag;
 }
 
 body.minimal #search,
-body.minimal #search-mode-badge {
+body.minimal #search-mode-badge,
+body.minimal .filter-btn {
   -webkit-app-region: no-drag;
 }
 
@@ -196,30 +193,24 @@ body.expanded .entry-image-preview {
 
 /* ─── Filter bar ─────────────────────────────────────────────────────────────── */
 
-#filter-bar {
-  display: flex;
-  align-items: center;
-  padding: 6px 16px;
-  background: var(--surface-headerbar);
-  border-bottom: 1px solid var(--border-default);
-  flex-shrink: 0;
-}
-
 .filter-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  background: var(--surface-raised);
+  justify-content: center;
+  gap: 4px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0 8px;
+  background: var(--surface-input);
   color: var(--text-secondary);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-input);
   border-radius: 6px;
   font-family: inherit;
   font-size: var(--font-size-label);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  flex-shrink: 0;
   transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
-  max-width: 220px;
 }
 
 .filter-btn:hover,
@@ -228,15 +219,22 @@ body.expanded .entry-image-preview {
   border-color: var(--accent);
 }
 
-.filter-btn svg {
-  flex-shrink: 0;
-  opacity: 0.85;
+.filter-btn.active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
-.filter-btn #filter-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.filter-btn.active:hover {
+  border-color: var(--accent);
+}
+
+.filter-btn svg {
+  flex-shrink: 0;
+}
+
+#filter-count {
+  line-height: 1;
 }
 
 .filter-menu {
@@ -268,15 +266,23 @@ body.expanded .entry-image-preview {
 /* ─── Search bar ─────────────────────────────────────────────────────────────── */
 
 #search-bar {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 16px;
   background: var(--surface-base);
   flex-shrink: 0;
 }
 
+#search-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
 #search-icon {
   position: absolute;
-  left: 28px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
@@ -482,7 +488,7 @@ body.expanded .entry-image-preview {
 
 #search-mode-badge {
   position: absolute;
-  right: 28px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   font-size: var(--font-size-xs);
