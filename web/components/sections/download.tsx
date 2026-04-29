@@ -1,10 +1,11 @@
 "use client";
 
-import { Download } from "lucide-react";
+import { Check, Download } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FadeUp } from "@/components/fade-up";
 import { cn } from "@/lib/utils";
+import { TESTED_ON } from "@/lib/tested-on";
 
 export function DownloadSection() {
   return (
@@ -66,7 +67,26 @@ export function DownloadSection() {
           <p className="mt-6 text-sm text-muted-foreground">
             Ubuntu 20.04+ &middot; GNOME &middot; X11 or Wayland
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">
+        </FadeUp>
+
+        <FadeUp delay={0.45}>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-sm text-muted-foreground">Tested on:</span>
+            {TESTED_ON.map((os) => (
+              <Badge
+                key={`${os.name}-${os.version}`}
+                variant="outline"
+                className="gap-1 border-orange/30 bg-orange/10 text-orange"
+              >
+                <Check />
+                {os.name} {os.version}
+              </Badge>
+            ))}
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.5}>
+          <p className="mt-4 text-sm text-muted-foreground">
             Want more features?{" "}
             <a href="/pro" className="text-orange hover:underline">
               See Clipmer Pro &rarr;
