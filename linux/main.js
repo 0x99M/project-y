@@ -285,11 +285,13 @@ ipcMain.handle('copy-to-clipboard', (_event, entry) => {
   if (entry.type === 'text') {
     clipboard.writeText(entry.content);
     lastClipboardText = entry.content;
+    addEntry('text', entry.content, entry.content.substring(0, 200));
   } else if (entry.type === 'image') {
     const b64 = entry.content.replace(/^data:image\/png;base64,/, '');
     const img = nativeImage.createFromBuffer(Buffer.from(b64, 'base64'));
     clipboard.writeImage(img);
     lastClipboardImageB64 = b64;
+    addEntry('image', entry.content, '[Image]');
   }
 });
 
