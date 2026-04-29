@@ -752,6 +752,19 @@ function renderFolders(container) {
     row.className = 'folder-row';
     row.dataset.id = group.id;
 
+    // Clicking the row jumps to the main view filtered to this folder.
+    // Rename/delete buttons stop propagation, and inline-rename swaps in an
+    // input that we ignore here so the user can finish editing.
+    row.addEventListener('click', async () => {
+      if (row.querySelector('.folder-inline-input')) return;
+      activeFilter = group.id;
+      await window.clipboardManager.setActiveFilter(group.id);
+      updateFilterLabel();
+      selectedIndex = -1;
+      if (foldersViewOpen) toggleFoldersView();
+      applyFilter();
+    });
+
     const icon = document.createElement('span');
     icon.className = 'folder-icon';
     icon.innerHTML =
