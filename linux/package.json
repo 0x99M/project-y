@@ -10,7 +10,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
-    "build": "electron-builder --linux AppImage deb"
+    "build": "electron-builder --linux AppImage deb rpm"
   },
   "dependencies": {
     "electron-store": "8.2.0"
@@ -23,11 +23,15 @@
     "appId": "com.clipmer.app",
     "productName": "Clipmer",
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": ["AppImage", "deb", "rpm"],
       "icon": "assets/icons/",
       "category": "Utility"
     },
     "deb": {
+      "depends": ["at-spi2-core"],
+      "afterInstall": "build/postinst.sh"
+    },
+    "rpm": {
       "depends": ["at-spi2-core"],
       "afterInstall": "build/postinst.sh"
     }

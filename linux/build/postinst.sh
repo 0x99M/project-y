@@ -1,4 +1,13 @@
 #!/bin/bash
+# Chromium's sandbox helper must be SUID root, otherwise the renderer crashes
+# with SIGTRAP at startup. electron-builder no longer sets this automatically
+# when a custom afterInstall script is provided.
+SANDBOX="/opt/Clipmer/chrome-sandbox"
+if [ -e "$SANDBOX" ]; then
+  chown root:root "$SANDBOX"
+  chmod 4755 "$SANDBOX"
+fi
+
 REAL_USER="${SUDO_USER:-$USER}"
 
 if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ] && id "$REAL_USER" &>/dev/null; then

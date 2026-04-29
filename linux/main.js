@@ -16,6 +16,14 @@ const crypto = require('crypto');
 const Store = require('electron-store');
 const license = require('./license');
 
+// AppImages mount on a nosuid filesystem, so chrome-sandbox cannot be SUID
+// root and the renderer crashes with SIGTRAP. Detect AppImage runtime via the
+// APPIMAGE env var and disable the sandbox there. .deb/.rpm installs keep the
+// proper SUID sandbox via the postinst hook.
+if (process.env.APPIMAGE) {
+  app.commandLine.appendSwitch('no-sandbox');
+}
+
 // ─── Persistence ────────────────────────────────────────────────────────────────
 
 const store = new Store({
