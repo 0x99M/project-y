@@ -39,7 +39,7 @@ export function DownloadSection() {
         </FadeUp>
 
         <FadeUp delay={0.3}>
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+          <div className="mt-8 flex flex-col flex-wrap gap-4 sm:flex-row sm:justify-center">
             <a
               href="https://github.com/0x99M/project-y/releases/download/v3.0.0/clipmer_3.0.0_amd64.deb"
               className={cn(
@@ -49,6 +49,16 @@ export function DownloadSection() {
             >
               <Download className="size-5" />
               Download .deb Package
+            </a>
+            <a
+              href="https://github.com/0x99M/project-y/releases/download/v3.0.0/clipmer-3.0.0.x86_64.rpm"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "h-14 gap-2 px-8 text-base border-border hover:bg-surface"
+              )}
+            >
+              <Download className="size-5" />
+              Download .rpm Package
             </a>
             <a
               href="https://github.com/0x99M/project-y/releases/download/v3.0.0/Clipmer-3.0.0.AppImage"
@@ -65,7 +75,7 @@ export function DownloadSection() {
 
         <FadeUp delay={0.4}>
           <p className="mt-6 text-sm text-muted-foreground">
-            Ubuntu 20.04+ &middot; GNOME &middot; X11 or Wayland
+            Ubuntu 20.04+ / Fedora 30+ &middot; GNOME &middot; X11 or Wayland
           </p>
         </FadeUp>
 
