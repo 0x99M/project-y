@@ -24,7 +24,7 @@ const features = [
   { name: "Folders", free: false, pro: true },
   { name: "Inline notes", free: false, pro: true },
   { name: "Smart search", free: "Content only", pro: "Content + notes" },
-  { name: "Auto-paste (Wayland)", free: false, pro: true },
+  { name: "Auto-paste (Wayland)", free: true, pro: true },
   { name: "Dark & light themes", free: "Dark only", pro: "Both + accent color" },
   { name: "Adjustable font size", free: true, pro: true },
   { name: "Minimal view", free: false, pro: true },

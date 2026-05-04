@@ -700,7 +700,6 @@ ipcMain.handle('get-remember-position', () => store.get('rememberPosition') !== 
 ipcMain.handle('set-remember-position', (_event, v) => store.set('rememberPosition', v));
 
 ipcMain.handle('set-auto-paste', (_event, enabled) => {
-  if (!license.isPro()) return 'pro-required';
   store.set('autoPaste', enabled);
 
   if (enabled) {

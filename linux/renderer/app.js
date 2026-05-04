@@ -430,7 +430,6 @@ async function initLicense() {
 
 function applyProGating() {
   const proRows = [
-    'auto-paste-toggle',
     'minimal-view-toggle',
     'accent-picker',
     'shortcut-recorder',
