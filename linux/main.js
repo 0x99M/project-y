@@ -56,7 +56,7 @@ let tray = null;
 let clipboardHistory = [];
 let groups = [];
 let lastClipboardText = '';
-let lastClipboardImageB64 = '';
+let lastClipboardImageHash = '';
 let pollingInterval = null;
 
 const MAX_HISTORY = 200;
@@ -198,22 +198,22 @@ function checkClipboard() {
   }
 
   const currentImage = clipboard.readImage();
-  if (!currentImage.isEmpty()) {
-    let pngBuffer = currentImage.toPNG();
-    const b64 = pngBuffer.toString('base64');
+  if (currentImage.isEmpty()) return;
 
-    if (b64 !== lastClipboardImageB64) {
-      lastClipboardImageB64 = b64;
+  // Dedup with a small SHA-1 hash before doing the expensive base64 work.
+  // Without this, every 500ms tick allocates a multi-MB base64 string for an
+  // unchanged image, which pins the V8 heap high and burns CPU.
+  let pngBuffer = currentImage.toPNG();
+  const hash = crypto.createHash('sha1').update(pngBuffer).digest('hex');
+  if (hash === lastClipboardImageHash) return;
+  lastClipboardImageHash = hash;
 
-      if (pngBuffer.length > MAX_IMAGE_BYTES) {
-        const resized = currentImage.resize({ width: 400 });
-        pngBuffer = resized.toPNG();
-      }
-
-      const dataUrl = 'data:image/png;base64,' + pngBuffer.toString('base64');
-      addEntry('image', dataUrl, '[Image]');
-    }
+  if (pngBuffer.length > MAX_IMAGE_BYTES) {
+    pngBuffer = currentImage.resize({ width: 400 }).toPNG();
   }
+
+  const dataUrl = 'data:image/png;base64,' + pngBuffer.toString('base64');
+  addEntry('image', dataUrl, '[Image]');
 }
 
 function addEntry(type, content, preview) {
@@ -288,9 +288,9 @@ ipcMain.handle('copy-to-clipboard', (_event, entry) => {
     addEntry('text', entry.content, entry.content.substring(0, 200));
   } else if (entry.type === 'image') {
     const b64 = entry.content.replace(/^data:image\/png;base64,/, '');
-    const img = nativeImage.createFromBuffer(Buffer.from(b64, 'base64'));
-    clipboard.writeImage(img);
-    lastClipboardImageB64 = b64;
+    const pngBuffer = Buffer.from(b64, 'base64');
+    clipboard.writeImage(nativeImage.createFromBuffer(pngBuffer));
+    lastClipboardImageHash = crypto.createHash('sha1').update(pngBuffer).digest('hex');
     addEntry('image', entry.content, '[Image]');
   }
 });
@@ -765,7 +765,9 @@ app.whenReady().then(() => {
     if (latest.type === 'text') {
       lastClipboardText = latest.content;
     } else if (latest.type === 'image') {
-      lastClipboardImageB64 = latest.content.replace(/^data:image\/png;base64,/, '');
+      const b64 = latest.content.replace(/^data:image\/png;base64,/, '');
+      const pngBuffer = Buffer.from(b64, 'base64');
+      lastClipboardImageHash = crypto.createHash('sha1').update(pngBuffer).digest('hex');
     }
   }
 
