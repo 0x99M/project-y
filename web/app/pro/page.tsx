@@ -323,7 +323,7 @@ export default function ProPage() {
                 },
                 {
                   q: "What if Clipmer doesn't work for me?",
-                  a: "All sales are final. Try the free version first — it runs on the same codebase as Pro, so if the free app works, Pro will too.",
+                  a: "You can request a refund within 14 days of purchase. Either way, try the free version first — it runs on the same codebase as Pro, so if the free app works, Pro will too.",
                 },
                 {
                   q: "Will you keep maintaining it?",
