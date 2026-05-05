@@ -23,6 +23,11 @@ let entryMenuView = 'main'; // 'main' | 'folders'
 // the list and we don't waste a render to bump every "37s ago" once a second.
 let timeReferenceNow = Date.now();
 
+// Pagination — render only the first PAGE_SIZE entries; clicking the load-more
+// row (or pressing the down arrow once it's selected) reveals another page.
+const PAGE_SIZE = 25;
+let visibleCount = PAGE_SIZE;
+
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
 const searchEl = document.getElementById('search');
@@ -109,11 +114,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   window.clipboardManager.onFilterReset(() => {
     activeFilter = 'all';
+    visibleCount = PAGE_SIZE;
     updateFilterLabel();
     applyFilter();
   });
 
-  searchEl.addEventListener('input', applyFilter);
+  searchEl.addEventListener('input', () => {
+    visibleCount = PAGE_SIZE;
+    applyFilter();
+  });
 
   clearBtn.addEventListener('click', async () => {
     const ok = confirm('Clear all clipboard history? This can\'t be undone.');
@@ -229,6 +238,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (document.visibilityState !== 'visible') return;
 
     timeReferenceNow = Date.now();
+    visibleCount = PAGE_SIZE;
 
     // Close settings / folders view if the user enabled that behavior
     if (settingsOpen && closeSettingsOnOpen) {
@@ -532,7 +542,10 @@ function render(entries) {
 
   emptyEl.classList.remove('visible');
 
-  entries.forEach((entry, i) => {
+  const visibleEntries = entries.slice(0, visibleCount);
+  const hasMore = entries.length > visibleEntries.length;
+
+  visibleEntries.forEach((entry, i) => {
     const row = document.createElement('div');
     row.className = 'history-entry' + (i === selectedIndex ? ' selected' : '');
     row.dataset.index = i;
@@ -645,12 +658,29 @@ function render(entries) {
     listEl.appendChild(row);
   });
 
+  if (hasMore) {
+    const remaining = entries.length - visibleEntries.length;
+    const more = document.createElement('button');
+    more.type = 'button';
+    more.className = 'load-more' + (selectedIndex === visibleEntries.length ? ' selected' : '');
+    more.dataset.index = visibleEntries.length;
+    more.textContent = `Load ${Math.min(PAGE_SIZE, remaining)} more · ${remaining} hidden`;
+    more.addEventListener('click', () => expandVisible(entries));
+    listEl.appendChild(more);
+  }
+
   // Update entry count in header
   const sourceData = getSourceData();
   const countEl = document.getElementById('entry-count');
   if (countEl) {
     countEl.textContent = sourceData.length > 0 ? `${sourceData.length} items` : '';
   }
+}
+
+function expandVisible(entries) {
+  visibleCount = Math.min(visibleCount + PAGE_SIZE, entries.length);
+  render(entries);
+  scrollSelectedIntoView();
 }
 
 async function selectEntry(index) {
@@ -764,6 +794,7 @@ function renderFolders(container) {
       await window.clipboardManager.setActiveFilter(group.id);
       updateFilterLabel();
       selectedIndex = -1;
+      visibleCount = PAGE_SIZE;
       if (foldersViewOpen) toggleFoldersView();
       applyFilter();
     });
@@ -1077,6 +1108,8 @@ function handleKeyDown(e) {
   if (e.key === 'Enter' && e.shiftKey && selectedIndex >= 0) {
     e.preventDefault();
     const entries = currentEntries();
+    // Skip the load-more row — its index is past the visible window.
+    if (selectedIndex >= Math.min(visibleCount, entries.length)) return;
     const entry = entries[selectedIndex];
     if (entry) openViewer(entry);
     return;
@@ -1104,10 +1137,20 @@ function handleKeyDown(e) {
 
   const entries = currentEntries();
 
+  const visibleLen = Math.min(visibleCount, entries.length);
+  const hasLoadMore = entries.length > visibleLen;
+  // Index past the last entry where the load-more row sits, when shown.
+  const loadMoreIndex = hasLoadMore ? visibleLen : -1;
+
   switch (e.key) {
     case 'ArrowDown':
       e.preventDefault();
-      selectedIndex = Math.min(selectedIndex + 1, entries.length - 1);
+      if (hasLoadMore && selectedIndex === loadMoreIndex) {
+        // Already on load-more — pressing down again expands.
+        expandVisible(entries);
+        break;
+      }
+      selectedIndex = Math.min(selectedIndex + 1, hasLoadMore ? loadMoreIndex : visibleLen - 1);
       render(entries);
       scrollSelectedIntoView();
       break;
@@ -1123,7 +1166,11 @@ function handleKeyDown(e) {
       if (e.shiftKey) break; // handled above (open viewer)
       if (selectedIndex >= 0) {
         e.preventDefault();
-        selectEntry(selectedIndex);
+        if (hasLoadMore && selectedIndex === loadMoreIndex) {
+          expandVisible(entries);
+        } else {
+          selectEntry(selectedIndex);
+        }
       }
       break;
 
@@ -1137,6 +1184,7 @@ function handleKeyDown(e) {
         window.clipboardManager.setActiveFilter(activeFilter);
         updateFilterLabel();
         selectedIndex = -1;
+        visibleCount = PAGE_SIZE;
         applyFilter();
       } else {
         // Tab: toggle search mode
@@ -1154,7 +1202,7 @@ function handleKeyDown(e) {
 }
 
 function scrollSelectedIntoView() {
-  const el = listEl.querySelector('.history-entry.selected');
+  const el = listEl.querySelector('.selected');
   if (el) el.scrollIntoView({ block: 'nearest' });
 }
 
@@ -1245,6 +1293,7 @@ function openFilterMenu() {
       updateFilterLabel();
       closeFilterMenu();
       selectedIndex = -1;
+      visibleCount = PAGE_SIZE;
       applyFilter();
     });
     return row;

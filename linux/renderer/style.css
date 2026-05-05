@@ -346,6 +346,31 @@ body.expanded .entry-image-preview {
   background: var(--accent-muted);
 }
 
+.load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 6px 0 4px;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-default);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.load-more:hover,
+.load-more.selected {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
+
 /* ─── Type badge ─────────────────────────────────────────────────────────────── */
 
 .entry-type-badge {
