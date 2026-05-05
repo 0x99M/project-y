@@ -262,8 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (autoFocusFirst) {
         const entries = currentEntries();
         if (entries.length > 0) {
-          selectedIndex = 0;
-          render(entries);
+          setSelectedIndex(0);
           scrollSelectedIntoView();
         }
       }
@@ -1150,15 +1149,15 @@ function handleKeyDown(e) {
         expandVisible(entries);
         break;
       }
-      selectedIndex = Math.min(selectedIndex + 1, hasLoadMore ? loadMoreIndex : visibleLen - 1);
-      render(entries);
+      setSelectedIndex(
+        Math.min(selectedIndex + 1, hasLoadMore ? loadMoreIndex : visibleLen - 1)
+      );
       scrollSelectedIntoView();
       break;
 
     case 'ArrowUp':
       e.preventDefault();
-      selectedIndex = Math.max(selectedIndex - 1, 0);
-      render(entries);
+      setSelectedIndex(Math.max(selectedIndex - 1, 0));
       scrollSelectedIntoView();
       break;
 
@@ -1204,6 +1203,19 @@ function handleKeyDown(e) {
 function scrollSelectedIntoView() {
   const el = listEl.querySelector('.selected');
   if (el) el.scrollIntoView({ block: 'nearest' });
+}
+
+// Cheap selection update: just swap the .selected class on the two affected
+// rows. Avoids the full list rebuild that render() does — critical for arrow
+// auto-repeat, which used to queue up renders faster than they could finish.
+function setSelectedIndex(newIndex) {
+  const prev = listEl.querySelector('.selected');
+  if (prev) prev.classList.remove('selected');
+  selectedIndex = newIndex;
+  if (newIndex >= 0) {
+    const next = listEl.querySelector(`[data-index="${newIndex}"]`);
+    if (next) next.classList.add('selected');
+  }
 }
 
 // ─── Utilities ──────────────────────────────────────────────────────────────────
