@@ -220,7 +220,7 @@ export function Hero() {
                     <div className="size-2.5 rounded-full bg-[#febc2e] sm:size-3" />
                     <div className="size-2.5 rounded-full bg-[#28c840] sm:size-3" />
                     <span className="ml-1.5 text-[10px] text-muted-foreground font-mono sm:ml-2 sm:text-xs">
-                      Clipmer v3.0.1
+                      Clipmer v3.0.2
                     </span>
                     <motion.div
                       className="ml-auto size-1.5 rounded-full bg-green-500"
