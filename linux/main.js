@@ -279,6 +279,8 @@ function getVisibleHistory() {
 
 // ─── IPC handlers ───────────────────────────────────────────────────────────────
 
+ipcMain.handle('get-app-version', () => app.getVersion());
+
 ipcMain.handle('get-history', () => getVisibleHistory());
 
 ipcMain.handle('copy-to-clipboard', (_event, entry) => {

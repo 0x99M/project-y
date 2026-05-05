@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('clipboardManager', {
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   getHistory: () => ipcRenderer.invoke('get-history'),
   copyToClipboard: (entry) => ipcRenderer.invoke('copy-to-clipboard', entry),
   clearHistory: () => ipcRenderer.invoke('clear-history'),

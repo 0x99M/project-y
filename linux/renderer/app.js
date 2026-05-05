@@ -18,6 +18,11 @@ let entryMenuOpen = false;
 let entryMenuTarget = null;
 let entryMenuView = 'main'; // 'main' | 'folders'
 
+// Frozen "now" used to format entry timestamps. Refreshed only when the window
+// becomes visible, so the displayed times don't drift while the user looks at
+// the list and we don't waste a render to bump every "37s ago" once a second.
+let timeReferenceNow = Date.now();
+
 const listEl = document.getElementById('history-list');
 const emptyEl = document.getElementById('empty-state');
 const searchEl = document.getElementById('search');
@@ -60,6 +65,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyFontSize(savedFontSize);
   fontSlider.value = savedFontSize;
   document.getElementById('font-size-value').textContent = savedFontSize + 'px';
+
+  window.clipboardManager.getAppVersion().then((v) => {
+    const el = document.getElementById('app-version-label');
+    if (el) el.textContent = `Clipmer v${v}`;
+  });
 
   historyData = await window.clipboardManager.getHistory();
   groupsData = await window.clipboardManager.getGroups();
@@ -217,6 +227,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Apply settings when window becomes visible
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
+
+    timeReferenceNow = Date.now();
 
     // Close settings / folders view if the user enabled that behavior
     if (settingsOpen && closeSettingsOnOpen) {
@@ -1149,7 +1161,9 @@ function scrollSelectedIntoView() {
 // ─── Utilities ──────────────────────────────────────────────────────────────────
 
 function timeAgo(timestamp) {
-  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  // Use the frozen reference so times stay stable until the window is reopened.
+  // Math.max guards entries newer than the reference (added since last open).
+  const seconds = Math.max(0, Math.floor((timeReferenceNow - timestamp) / 1000));
   if (seconds < 5) return 'just now';
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
