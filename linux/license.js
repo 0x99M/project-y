@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEAPaJIVp8pkEPtQ8G64RloBxJPssjhT5InAjWmEhucujw=
+MCowBQYDK2VwAyEA69a/YPkxmusXvWL6UakqP3Js85rkfI0Lt2yb1qidfLw=
 -----END PUBLIC KEY-----`;
 
 let store = null;
