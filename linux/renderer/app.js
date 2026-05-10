@@ -88,11 +88,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyFilter();
 
   window.clipboardManager.onHistoryUpdated((history) => {
+    historyData = history;
     if (document.activeElement && document.activeElement.classList.contains('note-input')) {
-      historyData = history;
       return;
     }
-    historyData = history;
+    // Skip the render when nobody can see it. The visibilitychange handler
+    // already calls applyFilter() when the window opens, so we catch up then.
+    if (document.hidden) return;
     applyFilter();
   });
 
@@ -103,6 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       activeFilter = 'all';
       window.clipboardManager.setActiveFilter('all');
     }
+    if (document.hidden) return;
     updateFilterLabel();
     // Refresh the main list (chips may have changed)
     applyFilter();
