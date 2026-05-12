@@ -1,0 +1,83 @@
+# Flatpak manifest for Clipmer.
+#
+# Strategy: download the published AppImage from the GitHub release, unpack it,
+# and install its contents into /app. The org.electronjs.Electron2.BaseApp
+# provides zypak, which lets Chromium's sandbox work inside the Flatpak sandbox
+# (Chromium's own SUID sandbox can't run here, so we launch with --no-sandbox
+# and let zypak intercept the sandbox calls).
+#
+# When you cut a new release: bump the AppImage URL + sha256 below and the
+# <release> entry in app.clipmer.Clipmer.metainfo.xml.
+app-id: app.clipmer.Clipmer
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '24.08'
+command: clipmer
+separate-locales: false
+
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  # System tray icon — needs a StatusNotifierItem host (built into KDE; on GNOME
+  # it requires the AppIndicator / KStatusNotifierItem shell extension).
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=com.canonical.indicator.application
+  # Desktop notifications.
+  - --talk-name=org.freedesktop.Notifications
+  # Portals (file chooser, etc.).
+  - --talk-name=org.freedesktop.portal.Desktop
+  # NOTE: deliberately NO --share=network. Clipmer is 100% offline — no
+  # telemetry, no license server. Keep it that way.
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - '*.la'
+  - '*.a'
+
+modules:
+  - name: clipmer
+    buildsystem: simple
+    build-commands:
+      - chmod +x Clipmer-3.0.3.AppImage
+      - ./Clipmer-3.0.3.AppImage --appimage-extract
+      # Install the unpacked Electron app under /app/clipmer, dropping the
+      # AppImage-only launcher/metadata bits we replace below.
+      - mkdir -p /app/clipmer
+      - cp -a squashfs-root/. /app/clipmer/
+      - rm -f /app/clipmer/AppRun /app/clipmer/.DirIcon /app/clipmer/clipmer.desktop /app/clipmer/clipmer.png
+      # The AppImage bundles a few extra libs under usr/lib (libappindicator,
+      # libnotify, libXtst, ...). Flatten them next to the binary so its
+      # $ORIGIN rpath finds them, then drop the now-empty usr/ tree.
+      - cp -a /app/clipmer/usr/lib/. /app/clipmer/ 2>/dev/null || true
+      - rm -rf /app/clipmer/usr
+      # Launcher: zypak-wrapper.sh comes from the Electron BaseApp.
+      - install -Dm755 clipmer.sh /app/bin/clipmer
+      # Icons (the AppImage carries a full hicolor set).
+      - |
+        for s in 48 64 128 256 512; do
+          src="squashfs-root/usr/share/icons/hicolor/${s}x${s}/apps/clipmer.png"
+          [ -f "$src" ] && install -Dm644 "$src" "/app/share/icons/hicolor/${s}x${s}/apps/app.clipmer.Clipmer.png" || true
+        done
+      # Desktop entry + AppStream metadata.
+      - install -Dm644 app.clipmer.Clipmer.desktop /app/share/applications/app.clipmer.Clipmer.desktop
+      - install -Dm644 app.clipmer.Clipmer.metainfo.xml /app/share/metainfo/app.clipmer.Clipmer.metainfo.xml
+    sources:
+      - type: file
+        url: https://github.com/0x99M/project-y/releases/download/v3.0.3/Clipmer-3.0.3.AppImage
+        sha256: f4399001bc7bd8e7438e1cbffa33b8ec57230a83917da023dd82c4afe5983351
+        # If you rebuild and re-upload the AppImage, recompute this:
+        #   sha256sum Clipmer-3.0.3.AppImage
+      - type: script
+        dest-filename: clipmer.sh
+        commands:
+          - exec zypak-wrapper.sh /app/clipmer/clipmer --no-sandbox "$@"
+      - type: file
+        path: app.clipmer.Clipmer.desktop
+      - type: file
+        path: app.clipmer.Clipmer.metainfo.xml

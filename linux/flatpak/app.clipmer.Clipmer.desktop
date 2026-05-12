@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Clipmer
+GenericName=Clipboard Manager
+Comment=Clipboard history manager for Linux
+Exec=clipmer %U
+Icon=app.clipmer.Clipmer
+Terminal=false
+Categories=Utility;
+Keywords=clipboard;history;copy;paste;snippets;
+StartupWMClass=Clipmer
+StartupNotify=true
