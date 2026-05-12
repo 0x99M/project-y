@@ -299,7 +299,7 @@ const steps = [
     number: "1",
     title: "Copy like you always do",
     subtitle: "Nothing to learn",
-    description: "Clipmer runs in your tray and watches the system clipboard. Every Ctrl+C is saved locally — text, code, images. You don't change your workflow.",
+    description: "Clipmer runs in your tray and watches the system clipboard. Every Ctrl+C is saved locally — text, code, snippets. You don't change your workflow.",
     scene: CopyScene,
   },
   {

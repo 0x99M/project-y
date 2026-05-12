@@ -56,13 +56,11 @@ let tray = null;
 let clipboardHistory = [];
 let groups = [];
 let lastClipboardText = '';
-let lastClipboardImageHash = '';
 let pollingInterval = null;
 
 const MAX_HISTORY = 200;
 const FREE_HISTORY_LIMIT = 25;
 const POLL_MS = 500;
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const PID_FILE = path.join(app.getPath('userData'), 'clipmer.pid');
 
 // ─── Single instance lock ───────────────────────────────────────────────────────
@@ -193,35 +191,14 @@ function checkClipboard() {
   const currentText = clipboard.readText();
   if (currentText && currentText !== lastClipboardText) {
     lastClipboardText = currentText;
-    addEntry('text', currentText, currentText.substring(0, 200));
-    return;
+    addEntry(currentText, currentText.substring(0, 200));
   }
-
-  const currentImage = clipboard.readImage();
-  if (currentImage.isEmpty()) return;
-
-  // Dedup with a small SHA-1 hash before doing the expensive base64 work.
-  // Without this, every 500ms tick allocates a multi-MB base64 string for an
-  // unchanged image, which pins the V8 heap high and burns CPU.
-  let pngBuffer = currentImage.toPNG();
-  const hash = crypto.createHash('sha1').update(pngBuffer).digest('hex');
-  if (hash === lastClipboardImageHash) return;
-  lastClipboardImageHash = hash;
-
-  if (pngBuffer.length > MAX_IMAGE_BYTES) {
-    pngBuffer = currentImage.resize({ width: 400 }).toPNG();
-  }
-
-  const dataUrl = 'data:image/png;base64,' + pngBuffer.toString('base64');
-  addEntry('image', dataUrl, '[Image]');
 }
 
-function addEntry(type, content, preview) {
+function addEntry(content, preview) {
   // If the exact content already exists in history, bubble it to the top and
   // refresh its timestamp. Reuse the same id so any group memberships stay valid.
-  const existingIdx = clipboardHistory.findIndex(
-    (e) => e.type === type && e.content === content
-  );
+  const existingIdx = clipboardHistory.findIndex((e) => e.content === content);
   if (existingIdx !== -1) {
     const [existing] = clipboardHistory.splice(existingIdx, 1);
     existing.timestamp = Date.now();
@@ -235,7 +212,7 @@ function addEntry(type, content, preview) {
 
   const entry = {
     id: crypto.randomUUID(),
-    type,
+    type: 'text',
     content,
     preview,
     timestamp: Date.now(),
@@ -274,7 +251,7 @@ function clearHistory() {
 
 function getVisibleHistory() {
   if (license.isPro()) return clipboardHistory;
-  return clipboardHistory.filter((e) => e.type === 'text').slice(0, FREE_HISTORY_LIMIT);
+  return clipboardHistory.slice(0, FREE_HISTORY_LIMIT);
 }
 
 // ─── IPC handlers ───────────────────────────────────────────────────────────────
@@ -284,17 +261,9 @@ ipcMain.handle('get-app-version', () => app.getVersion());
 ipcMain.handle('get-history', () => getVisibleHistory());
 
 ipcMain.handle('copy-to-clipboard', (_event, entry) => {
-  if (entry.type === 'text') {
-    clipboard.writeText(entry.content);
-    lastClipboardText = entry.content;
-    addEntry('text', entry.content, entry.content.substring(0, 200));
-  } else if (entry.type === 'image') {
-    const b64 = entry.content.replace(/^data:image\/png;base64,/, '');
-    const pngBuffer = Buffer.from(b64, 'base64');
-    clipboard.writeImage(nativeImage.createFromBuffer(pngBuffer));
-    lastClipboardImageHash = crypto.createHash('sha1').update(pngBuffer).digest('hex');
-    addEntry('image', entry.content, '[Image]');
-  }
+  clipboard.writeText(entry.content);
+  lastClipboardText = entry.content;
+  addEntry(entry.content, entry.content.substring(0, 200));
 });
 
 ipcMain.handle('clear-history', () => {
@@ -448,8 +417,6 @@ ipcMain.handle('delete-entry', (_event, entryId) => {
 });
 
 ipcMain.handle('get-stats', () => {
-  const historyTexts = clipboardHistory.filter((e) => e.type === 'text').length;
-  const historyImages = clipboardHistory.filter((e) => e.type === 'image').length;
   const historyNotes = clipboardHistory.filter((e) => e.note).length;
   const totalGroups = groups.length;
   const groupedEntries = new Set(groups.flatMap((g) => g.memberIds)).size;
@@ -460,8 +427,6 @@ ipcMain.handle('get-stats', () => {
 
   return {
     historyTotal: clipboardHistory.length,
-    historyTexts,
-    historyImages,
     historyNotes,
     totalGroups,
     groupedEntries,
@@ -735,6 +700,16 @@ app.whenReady().then(() => {
     const rawGroups = store.get('groups');
     groups = Array.isArray(rawGroups) ? rawGroups : [];
 
+    // Image entries were removed — drop any left over from older versions.
+    const beforeLen = clipboardHistory.length;
+    clipboardHistory = clipboardHistory.filter((e) => e.type !== 'image');
+    if (clipboardHistory.length !== beforeLen) {
+      const survivingIds = new Set(clipboardHistory.map((e) => e.id));
+      groups.forEach((g) => { g.memberIds = g.memberIds.filter((id) => survivingIds.has(id)); });
+      store.set('history', clipboardHistory);
+      store.set('groups', groups);
+    }
+
     if (store.has('pinned')) {
       const legacyPinned = store.get('pinned');
       if (Array.isArray(legacyPinned) && legacyPinned.length > 0) {
@@ -762,14 +737,7 @@ app.whenReady().then(() => {
   }
 
   if (clipboardHistory.length > 0) {
-    const latest = clipboardHistory[0];
-    if (latest.type === 'text') {
-      lastClipboardText = latest.content;
-    } else if (latest.type === 'image') {
-      const b64 = latest.content.replace(/^data:image\/png;base64,/, '');
-      const pngBuffer = Buffer.from(b64, 'base64');
-      lastClipboardImageHash = crypto.createHash('sha1').update(pngBuffer).digest('hex');
-    }
+    lastClipboardText = clipboardHistory[0].content;
   }
 
   createWindow();

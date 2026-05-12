@@ -79,9 +79,9 @@ All IPC goes through `contextBridge` in `preload.js`. The renderer never accesse
 ```js
 {
   id: String,           // crypto.randomUUID()
-  type: 'text' | 'image',
-  content: String,      // plain text or data:image/png;base64,...
-  preview: String,      // first 200 chars for text, '[Image]' for images
+  type: 'text',         // text-only; kept for backward compat with old stores
+  content: String,      // plain text
+  preview: String,      // first 200 chars
   timestamp: Number     // Date.now()
 }
 ```
@@ -89,13 +89,12 @@ All IPC goes through `contextBridge` in `preload.js`. The renderer never accesse
 ## Clipboard Monitoring
 
 - Polls every 500ms via `setInterval`
-- Checks **text first** — if text changed from last known, adds text entry
-- Checks **image only if text unchanged** — prevents dual-format entries (apps often put both text + image on clipboard)
-- Deduplicates against most recent entry only
-- Images >5MB are thumbnailed to width 400 via `nativeImage.resize()`
-- Images stored as base64 PNG data URLs
-- History capped at 200 entries (oldest dropped)
+- If `clipboard.readText()` changed from last known, adds a text entry
+- Deduplicates against the whole history (existing match bubbles to top)
+- History capped at 200 entries (oldest dropped, except group members)
 - Persisted to `electron-store` on every change
+- Text-only — image clipboard content is ignored; legacy image entries are
+  pruned from the store on startup
 
 ## Global Shortcut (Wayland Workaround)
 
@@ -156,7 +155,6 @@ Font: Ubuntu / Cantarell. Weights: 400 (body) and 500 (labels).
 - `nodeIntegration: false` — no `require()` in renderer
 - All IPC goes through `contextBridge` — no raw `ipcRenderer` exposed
 - DOM built with `createElement` + `textContent` — no `innerHTML` or XSS surface
-- Image `src` validated against `data:image/png;base64,` regex before assignment
 
 ## Known Limitations
 

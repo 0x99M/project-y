@@ -554,28 +554,18 @@ function render(entries) {
 
     // Type badge
     const badge = document.createElement('div');
-    badge.className = 'entry-type-badge ' + (entry.type === 'image' ? 'badge-image' : 'badge-text');
-    badge.textContent = entry.type === 'image' ? '\u{1F5BC}' : 'T';
+    badge.className = 'entry-type-badge badge-text';
+    badge.textContent = 'T';
     row.appendChild(badge);
 
     // Body wrapper
     const body = document.createElement('div');
     body.className = 'entry-body';
 
-    if (entry.type === 'image') {
-      const img = document.createElement('img');
-      img.className = 'entry-image-preview';
-      img.alt = 'Image';
-      if (/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(entry.content)) {
-        img.src = entry.content;
-      }
-      body.appendChild(img);
-    } else {
-      const preview = document.createElement('div');
-      preview.className = 'entry-preview';
-      preview.textContent = entry.preview;
-      body.appendChild(preview);
-    }
+    const preview = document.createElement('div');
+    preview.className = 'entry-preview';
+    preview.textContent = entry.preview;
+    body.appendChild(preview);
 
     const time = document.createElement('div');
     time.className = 'entry-time';
@@ -934,8 +924,6 @@ async function renderStats() {
   el.textContent = '';
   const rows = [
     ['History entries', stats.historyTotal],
-    ['Text entries', stats.historyTexts],
-    ['Image entries', stats.historyImages],
     ['Notes', stats.historyNotes],
     ['Groups', stats.totalGroups],
     ['Grouped entries', stats.groupedEntries],
@@ -975,7 +963,7 @@ function applyFilter() {
   } else {
     // Search across all of history (groups reference history entries)
     filteredData = historyData.filter((e) => {
-      const matchContent = e.type === 'text' && e.content.toLowerCase().includes(query);
+      const matchContent = e.content.toLowerCase().includes(query);
       const matchNote = (e.note || '').toLowerCase().includes(query);
       return searchMode === 'notes' ? matchNote : matchContent;
     });
@@ -1575,20 +1563,11 @@ function openViewer(entry) {
   const title = document.getElementById('viewer-title');
   const meta = document.getElementById('viewer-meta');
 
-  if (entry.type === 'image') {
-    title.textContent = 'Image';
-    body.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = entry.content;
-    body.appendChild(img);
-    meta.textContent = '';
-  } else {
-    title.textContent = 'Full content';
-    body.textContent = entry.content;
-    const chars = entry.content.length;
-    const lines = entry.content.split('\n').length;
-    meta.textContent = `${chars.toLocaleString()} chars · ${lines} line${lines === 1 ? '' : 's'}`;
-  }
+  title.textContent = 'Full content';
+  body.textContent = entry.content;
+  const chars = entry.content.length;
+  const lines = entry.content.split('\n').length;
+  meta.textContent = `${chars.toLocaleString()} chars · ${lines} line${lines === 1 ? '' : 's'}`;
 
   overlay.style.display = 'flex';
 }

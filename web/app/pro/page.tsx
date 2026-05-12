@@ -20,7 +20,7 @@ const PADDLE_ENV = (process.env.NEXT_PUBLIC_PADDLE_ENV || "sandbox") as
 const BUY_PRO_ENABLED = process.env.NEXT_PUBLIC_BUY_PRO_ENABLED === "true";
 
 const features = [
-  { name: "Clipboard history", free: "25 text entries", pro: "200 entries, text + images" },
+  { name: "Clipboard history", free: "25 entries", pro: "200 entries" },
   { name: "Folders", free: false, pro: true },
   { name: "Inline notes", free: false, pro: true },
   { name: "Smart search", free: "Content only", pro: "Content + notes" },

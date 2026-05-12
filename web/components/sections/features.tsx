@@ -548,7 +548,7 @@ function NotesMockup() {
 const features = [
   {
     title: "Every copy, saved",
-    description: "Ctrl+C is now a permanent record. Text, code, links, images — up to 200 entries, deduplicated, still here after reboot.",
+    description: "Ctrl+C is now a permanent record. Text, code, links, snippets — up to 200 entries, deduplicated, still here after reboot.",
     mockup: ClipboardHistoryMockup,
   },
   {

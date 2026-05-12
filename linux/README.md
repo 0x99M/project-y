@@ -1,6 +1,6 @@
 # Clipmer
 
-A tray-based clipboard history manager for Linux, built with Electron. Monitors the system clipboard, stores text and image entries, and provides a popup UI with search and keyboard navigation.
+A tray-based clipboard history manager for Linux, built with Electron. Monitors the system clipboard, stores text entries, and provides a popup UI with search and keyboard navigation.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ Produces `.AppImage` and `.deb` in the `dist/` directory.
 - **Expand**: Click the expand button in the header to see full text content
 - **Click** any entry to copy it back to your clipboard
 
-Supports text and image clipboard content. History is capped at 200 entries.
+Tracks text clipboard content. History is capped at 200 entries.
 
 ## Config
 

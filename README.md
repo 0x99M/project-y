@@ -1,6 +1,6 @@
 # Clipmer
 
-A tray-based clipboard history manager for Linux. Monitors your clipboard, stores text and image entries, and provides a fast popup UI with search, pinned items, notes, and auto-paste.
+A tray-based clipboard history manager for Linux. Monitors your clipboard, stores text entries, and provides a fast popup UI with search, pinned items, notes, and auto-paste.
 
 **Ubuntu · GNOME · Wayland**
 
