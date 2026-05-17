@@ -406,6 +406,14 @@ body.expanded .entry-preview {
   color: var(--text-primary);
 }
 
+/* Hidden entries: bullet-mask styled to read as "intentionally masked" rather
+   than "literal bullet text". Tracking gives the dots a password-field feel. */
+.entry-preview.hidden {
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  font-family: monospace;
+}
+
 .entry-time {
   font-size: var(--font-size-small);
   font-weight: 400;

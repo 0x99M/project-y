@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('clipboardManager', {
   hideWindow: () => ipcRenderer.invoke('hide-window'),
   simulatePaste: () => ipcRenderer.invoke('simulate-paste'),
   updateNote: ({ id, note }) => ipcRenderer.invoke('update-note', { id, note }),
+  setEntryHidden: ({ id, hidden }) => ipcRenderer.invoke('set-entry-hidden', { id, hidden }),
   toggleExpand: () => ipcRenderer.invoke('toggle-expand'),
   getGroups: () => ipcRenderer.invoke('get-groups'),
   createGroup: (name) => ipcRenderer.invoke('create-group', name),

@@ -563,8 +563,8 @@ function render(entries) {
     body.className = 'entry-body';
 
     const preview = document.createElement('div');
-    preview.className = 'entry-preview';
-    preview.textContent = entry.preview;
+    preview.className = 'entry-preview' + (entry.hidden ? ' hidden' : '');
+    preview.textContent = entry.hidden ? '••••••••••' : entry.preview;
     body.appendChild(preview);
 
     const time = document.createElement('div');
@@ -578,7 +578,17 @@ function render(entries) {
     noteInput.className = 'note-input';
     noteInput.placeholder = 'Add a note...';
     noteInput.maxLength = 500;
-    noteInput.value = entry.note || '';
+    // Hidden entries: mask the note too and lock editing so the masked
+    // value can't accidentally get saved over the real note.
+    if (entry.hidden && entry.note) {
+      noteInput.value = '••••••••••';
+      noteInput.disabled = true;
+    } else if (entry.hidden) {
+      noteInput.value = '';
+      noteInput.disabled = true;
+    } else {
+      noteInput.value = entry.note || '';
+    }
     if (!proActive) noteInput.style.display = 'none';
 
     const saveNote = debounce((value) => {
@@ -961,8 +971,11 @@ function applyFilter() {
     }
     render(source);
   } else {
-    // Search across all of history (groups reference history entries)
+    // Search across all of history (groups reference history entries).
+    // Hidden entries are deliberately excluded so a search like "pass"
+    // can't surface a masked password as a result.
     filteredData = historyData.filter((e) => {
+      if (e.hidden) return false;
       const matchContent = e.content.toLowerCase().includes(query);
       const matchNote = (e.note || '').toLowerCase().includes(query);
       return searchMode === 'notes' ? matchNote : matchContent;
@@ -1405,6 +1418,25 @@ function renderEntryActionsMenu(menu, entry) {
     openViewer(entry);
   });
   menu.appendChild(viewBtn);
+
+  // Hide / Unhide — masks the entry in the list so it's safe during screen-share.
+  // Click-to-copy still puts the real content on the clipboard.
+  const hideBtn = document.createElement('button');
+  hideBtn.className = 'entry-menu-item';
+  hideBtn.innerHTML = entry.hidden
+    ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>' +
+      '</svg><span>Unhide</span>'
+    : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>' +
+      '<line x1="1" y1="1" x2="23" y2="23"/>' +
+      '</svg><span>Hide</span>';
+  hideBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    closeEntryMenu();
+    await window.clipboardManager.setEntryHidden({ id: entry.id, hidden: !entry.hidden });
+  });
+  menu.appendChild(hideBtn);
 
   const sep = document.createElement('div');
   sep.className = 'entry-menu-separator';

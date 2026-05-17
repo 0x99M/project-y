@@ -301,6 +301,21 @@ ipcMain.handle('update-note', (_event, { id, note }) => {
   }
 });
 
+// Free feature: mark an entry as hidden so it renders masked (•••••) in the
+// list. Hidden entries are also excluded from search. The stored content is
+// still plaintext — this is a screen-share / shoulder-surf privacy affordance,
+// not encryption.
+ipcMain.handle('set-entry-hidden', (_event, { id, hidden }) => {
+  const entry = clipboardHistory.find((e) => e.id === id);
+  if (!entry) return { success: false };
+  entry.hidden = !!hidden;
+  store.set('history', clipboardHistory);
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('history-updated', getVisibleHistory());
+  }
+  return { success: true };
+});
+
 // ─── Groups ─────────────────────────────────────────────────────────────────────
 
 function emitGroupsUpdated() {
