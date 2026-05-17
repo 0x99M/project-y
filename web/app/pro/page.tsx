@@ -31,6 +31,7 @@ const features = [
   { name: "Custom shortcut", free: "Default only", pro: "Configurable" },
   { name: "Keyboard navigation", free: true, pro: true },
   { name: "Start on login", free: true, pro: true },
+  { name: "Hide entries (screen-share safe)", free: true, pro: true },
   { name: "100% offline", free: true, pro: true },
 ];
 

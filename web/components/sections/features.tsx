@@ -541,6 +541,44 @@ function NotesMockup() {
   );
 }
 
+function HiddenEntryMockup() {
+  const entries = [
+    { text: "TODO: refactor auth flow before Friday", hidden: false },
+    { text: "PGPASSWORD=s3cure!x9", hidden: true },
+    { text: "ssh deploy@prod-01", hidden: false },
+  ];
+
+  return (
+    <div className="space-y-1.5">
+      {entries.map((entry, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 6 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 + i * 0.12 }}
+          className="flex items-center gap-2 rounded-md border border-border/40 bg-white/[0.02] px-2.5 py-2"
+        >
+          {entry.hidden ? (
+            <>
+              <svg className="size-2.5 shrink-0 text-orange/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-[10px] font-mono tracking-widest text-muted-foreground/70">
+                ••••••••••
+              </span>
+            </>
+          ) : (
+            <span className="text-[10px] font-mono truncate text-foreground/70">
+              {entry.text}
+            </span>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /*  Feature cards config                                               */
 /* ------------------------------------------------------------------ */
@@ -565,6 +603,11 @@ const features = [
     title: "Add context with notes",
     description: "Attach a note to any entry — label that token as \"staging API key\" so future-you knows what it's for. Notes are fully searchable.",
     mockup: NotesMockup,
+  },
+  {
+    title: "Hide what shouldn't be on screen",
+    description: "Marking an entry as hidden masks it as ••••••••• in the list — safe to leave open during a screen-share or pair session. Click-to-copy still pastes the real content; search skips hidden entries so they can't be surfaced by accident.",
+    mockup: HiddenEntryMockup,
   },
   {
     title: "Paste without switching windows",
