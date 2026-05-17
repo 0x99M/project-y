@@ -10,7 +10,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron . --no-sandbox",
-    "build": "electron-builder --linux AppImage deb rpm snap"
+    "build": "electron-builder --linux AppImage deb rpm"
   },
   "dependencies": {
     "electron-store": "8.2.0"
@@ -23,7 +23,7 @@
     "appId": "com.clipmer.app",
     "productName": "Clipmer",
     "linux": {
-      "target": ["AppImage", "deb", "rpm", "snap"],
+      "target": ["AppImage", "deb", "rpm"],
       "icon": "assets/icons/",
       "category": "Utility"
     },
@@ -34,29 +34,6 @@
     "rpm": {
       "depends": ["at-spi2-core"],
       "afterInstall": "build/postinst.sh"
-    },
-    "snap": {
-      "summary": "Clipboard history manager for Linux",
-      "confinement": "strict",
-      "grade": "stable",
-      "base": "core22",
-      "compression": "lzo",
-      "plugs": [
-        "home",
-        "desktop",
-        "desktop-legacy",
-        "wayland",
-        "x11",
-        "unity7",
-        "gsettings",
-        "process-control",
-        "browser-support",
-        "opengl"
-      ],
-      "stagePackages": [
-        "default",
-        "libsecret-1-0"
-      ]
     }
   }
 }
